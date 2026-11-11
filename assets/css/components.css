@@ -1456,7 +1456,7 @@ details.strategies summary {
   align-items: stretch;
   gap: 12px;
   font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
-  font-size: 34px;
+  font-size: clamp(26px, 7vw, 34px);
   line-height: 1.15;
   color: var(--encre);
   font-variant-numeric: tabular-nums;
