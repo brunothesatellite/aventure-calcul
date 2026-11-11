@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="fr" data-taille="normal" data-animations="oui">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>L'Archipel des Calculs — calcul mental CM1</title>
+  <meta name="description" content="Traverse les quatre îles de l'Archipel des Calculs et rassemble la Boussole des Opérations : additions, soustractions, multiplications, divisions. CM1, sans compte et sans publicité.">
+  <meta name="theme-color" content="#fdf6e3">
+  <meta name="color-scheme" content="light">
+  <link rel="icon" href="assets/img/emoji/boussole.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/css/tokens.css">
+  <link rel="stylesheet" href="assets/css/base.css">
+  <link rel="stylesheet" href="assets/css/components.css">
+</head>
+<body>
+
+  <a class="evitement" href="#principal">Aller au contenu</a>
+
+  <main class="app" id="principal">
+    <section class="screen" id="screen-home" aria-label="Accueil"></section>
+    <section class="screen" id="screen-profils" aria-label="Choix du joueur"></section>
+    <section class="screen" id="screen-map" aria-label="Carte de l'archipel"></section>
+    <section class="screen" id="screen-ile" aria-label="Île"></section>
+    <section class="screen" id="screen-quete" aria-label="Quête"></section>
+    <section class="screen" id="screen-resultat" aria-label="Résultat de la quête"></section>
+    <section class="screen" id="screen-essai" aria-label="Atelier des énoncés"></section>
+    <section class="screen" id="screen-boutique" aria-label="Boutique"></section>
+    <section class="screen" id="screen-carnet" aria-label="Carnet de bord"></section>
+    <section class="screen" id="screen-reglages" aria-label="Réglages"></section>
+    <section class="screen" id="screen-parent" aria-label="Espace parent"></section>
+  </main>
+
+  <noscript>
+    <div class="carte" style="max-width:560px;margin:40px auto">
+      <h1>JavaScript est nécessaire</h1>
+      <p>Cette aventure fonctionne entièrement dans ton navigateur, sans serveur. Active JavaScript pour jouer.</p>
+    </div>
+  </noscript>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <div id="pluie" class="pluie" aria-hidden="true"></div>
+  <div id="modale" class="modale" hidden></div>
+
+  <!-- 1. Contenu : registre, compétences, énoncés, îles, progression -->
+  <script src="content/registry.js"></script>
+  <script src="content/competences.js"></script>
+
+  <script src="content/iles/addition.js"></script>
+  <script src="content/iles/soustraction.js"></script>
+  <script src="content/iles/multiplication.js"></script>
+  <script src="content/iles/division.js"></script>
+
+  <script src="content/enonces/addition.js"></script>
+  <script src="content/enonces/soustraction.js"></script>
+  <script src="content/enonces/multiplication.js"></script>
+  <script src="content/enonces/division.js"></script>
+
+  <script src="content/curriculum.js"></script>
+
+  <!-- 2. Moteur : sauvegarde, état, audio, mémoire, générateur -->
+  <script src="engine/storage.js"></script>
+  <script src="engine/state.js"></script>
+  <script src="engine/audio.js"></script>
+  <script src="engine/srs.js"></script>
+  <script src="engine/generateur.js"></script>
+  <script src="engine/leurres.js"></script>
+  <script src="engine/exercises.js"></script>
+  <script src="engine/feedback.js"></script>
+  <script src="engine/rewards.js"></script>
+  <script src="engine/session.js"></script>
+
+  <!-- 3. Interface : pictos, briques, routeur, écrans -->
+  <script src="assets/icons-inline.js"></script>
+  <script src="ui/components.js"></script>
+  <script src="ui/router.js"></script>
+  <script src="ui/screens/home.js"></script>
+  <script src="ui/screens/profils.js"></script>
+  <script src="ui/screens/map.js"></script>
+  <script src="ui/screens/ile.js"></script>
+  <script src="ui/screens/quete.js"></script>
+  <script src="ui/screens/resultat.js"></script>
+  <script src="ui/screens/essai.js"></script>
+  <script src="ui/screens/boutique.js"></script>
+  <script src="ui/screens/carnet.js"></script>
+  <script src="ui/screens/reglages.js"></script>
+  <script src="ui/screens/parent.js"></script>
+
+  <!-- 4. Démarrage -->
+  <script src="main.js"></script>
+</body>
+</html>
