@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Essai — retenues et emprunts</title>
-  <meta name="description" content="Page d'essai : opérations posées avec des cases pour écrire les retenues et les emprunts.">
+  <title>Essai — opérations posées</title>
+  <meta name="description" content="Page d'essai : additions, soustractions, multiplications et divisions posées, avec les reports à écrire.">
   <meta name="theme-color" content="#fdf6e3">
   <link rel="icon" href="assets/img/emoji/boussole.svg" type="image/svg+xml">
   <link rel="stylesheet" href="assets/css/tokens.css">
@@ -14,24 +14,30 @@
     /* Page d'essai : on grossit tout pour bien juger les cases. */
     #zone .pose { font-size: 44px; }
     #zone .pose__case { height: 1.35em; }
+    #zone .potence { font-size: 46px; }
+    @media (max-width: 620px) { #zone .potence { font-size: 34px; } }
+    @media (max-width: 440px) { #zone .potence { font-size: 28px; } }
     .essai-mode { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
     .essai-note { font-size: var(--taille-petit); }
     #retour { min-height: 8px; }
+    .potence-zone { display: flex; flex-direction: column; align-items: center; gap: 12px; max-width: 100%; overflow-x: auto; }
   </style>
 </head>
 <body>
 
   <main class="app">
     <div class="accueil">
-      <div class="accueil__logo">Essai — retenues et emprunts</div>
+      <div class="accueil__logo">Essai — opérations posées</div>
       <p class="accueil__sous-titre">
-        Une opération posée avec des cases pour écrire les reports, comme sur un cahier.
+        Additions, soustractions, multiplications et divisions, avec les reports à écrire.
       </p>
 
       <div class="carte">
         <div class="essai-mode">
           <button class="btn btn--primaire btn--petit" data-op="addition">Addition</button>
           <button class="btn btn--secondaire btn--petit" data-op="soustraction">Soustraction</button>
+          <button class="btn btn--secondaire btn--petit" data-op="multiplication">Multiplication</button>
+          <button class="btn btn--secondaire btn--petit" data-op="division">Division</button>
         </div>
         <div class="essai-mode">
           <button class="btn btn--secondaire btn--petit" data-chiffres="deux">2 chiffres</button>
@@ -40,7 +46,7 @@
 
         <p class="discret essai-note" style="margin:6px 0">
           <span id="aide">Tape dans une petite case pour écrire ta retenue.</span>
-          Retape dessus pour l'effacer. Ces cases sont un brouillon : elles ne comptent pas dans le score.
+          <span id="aide-note">Les cases sont un brouillon : elles ne comptent pas dans le score.</span>
         </p>
 
         <div class="pose-zone">
@@ -109,6 +115,26 @@
             contraintes: ["a - b >= 50", "emprunts(a, b) >= 1", "emprunts(a, b) <= 2",
               "b % 10 != 0", "a != 2 * b"]
           }
+        },
+        multiplication: {
+          deux: {
+            nombres: { a: { min: 12, max: 48 }, b: { min: 2, max: 5 } },
+            contraintes: ["a * b <= 200"]
+          },
+          trois: {
+            nombres: { a: { min: 124, max: 486 }, b: { min: 2, max: 5 } },
+            contraintes: ["a * b <= 2500"]
+          }
+        },
+        division: {
+          deux: {
+            nombres: { q: { min: 3, max: 9 }, b: { min: 3, max: 9 }, r: { min: 0, max: "b - 1" }, a: { calc: "q * b + r" } },
+            contraintes: ["a >= 20", "a <= 99"]
+          },
+          trois: {
+            nombres: { q: { min: 11, max: 199 }, b: { min: 2, max: 9 }, r: { min: 0, max: "b - 1" }, a: { calc: "q * b + r" } },
+            contraintes: ["a >= 100", "a <= 999", "String(q).indexOf('0') == -1"]
+          }
         }
       };
 
@@ -116,37 +142,64 @@
       var taille = "trois";
       var question = null;
       var saisie = "";
+      var champs = { quotient: "", reste: "" };
+      var champActif = "quotient";
       var essais = 0;
+      var divCases = [];
+      var divActif = null;
 
       var zone = document.getElementById("zone");
       var pave = document.getElementById("pave");
       var retour = document.getElementById("retour");
       var aide = document.getElementById("aide");
+      var aideNote = document.getElementById("aide-note");
       var libelleReveler = document.getElementById("libelle-reveler");
 
       function gabarit() {
         var m = MODES[op][taille];
-        var plus = op === "addition";
+        var signes = { addition: "+", soustraction: "−", multiplication: "×", division: "÷" };
+        var reponses = {
+          addition: "a + b",
+          soustraction: "a - b",
+          multiplication: "a * b",
+          division: { quotient: "q", reste: "r" }
+        };
+        var competences = {
+          addition: "add.centaines", soustraction: "sub.centaines",
+          multiplication: "mul.deuxChiffres", division: "div.reste"
+        };
         return {
-          id: "essai-retenue",
-          ile: op,
+          id: "essai-pose",
+          ile: op === "division" ? "division" : op,
           niveau: 3,
-          competence: plus ? "add.centaines" : "sub.centaines",
+          competence: competences[op],
           mode: "pose",
           nombres: m.nombres,
           contraintes: m.contraintes,
-          enonce: plus ? "{a} + {b}" : "{a} − {b}",
-          operation: plus ? "+" : "−",
-          reponse: plus ? "a + b" : "a - b"
+          enonce: "{a} " + signes[op] + " {b}",
+          operation: signes[op],
+          reponse: reponses[op]
         };
       }
 
       function majLibelles() {
-        var plus = op === "addition";
-        aide.textContent = plus
-          ? "Tape dans une petite case pour écrire ta retenue."
-          : "Pour un emprunt : un 1 au-dessus du chiffre du haut, un +1 au-dessus de celui du bas.";
-        libelleReveler.textContent = plus ? "Voir les retenues" : "Voir les emprunts";
+        var textes = {
+          addition: "Tape dans une petite case pour écrire ta retenue.",
+          soustraction: "Pour un emprunt : un 1 au-dessus du chiffre du haut, un +1 au-dessus de celui du bas.",
+          multiplication: "Tape une case plusieurs fois pour faire monter la retenue (1, 2, 3…).",
+          division: "Écris le chiffre du quotient, puis le produit et la différence de chaque étape."
+        };
+        var notes = {
+          addition: "Les cases sont un brouillon : elles ne comptent pas dans le score.",
+          soustraction: "Les cases sont un brouillon : elles ne comptent pas dans le score.",
+          multiplication: "Les cases sont un brouillon : elles ne comptent pas dans le score.",
+          division: "Les chiffres bleus sont déjà descendus ; les cases claires sont à toi."
+        };
+        aide.textContent = textes[op];
+        aideNote.textContent = notes[op];
+        libelleReveler.textContent = op === "soustraction" ? "Voir les emprunts"
+          : op === "division" ? "Compléter une étape"
+          : "Voir les retenues";
       }
 
       function dire(titre, texte, type) {
@@ -165,93 +218,261 @@
         }
       }
 
+      function majChamps() {
+        ["quotient", "reste"].forEach(function (c) {
+          var el = zone.querySelector('[data-valeur="' + c + '"]');
+          if (el) el.textContent = champs[c] || "?";
+        });
+        Array.prototype.forEach.call(zone.querySelectorAll("[data-champ]"), function (b) {
+          b.classList.toggle("actif", b.getAttribute("data-champ") === champActif);
+        });
+      }
+
       function lierCases() {
         Array.prototype.forEach.call(zone.querySelectorAll("[data-marque]"), function (b) {
           b.addEventListener("click", function () {
+            var cycle = Number(b.getAttribute("data-cycle") || 1);
+            var valeur = Number(b.getAttribute("data-valeur") || 0);
+            valeur = valeur >= cycle ? 0 : valeur + 1;
+            b.setAttribute("data-valeur", valeur);
+            b.classList.toggle("pleine", valeur > 0);
+            b.setAttribute("aria-pressed", valeur > 0 ? "true" : "false");
             var chiffre = b.querySelector(".pose__chiffre");
-            var symbole = b.getAttribute("data-symbole") || "1";
-            var pleine = b.classList.toggle("pleine");
-            b.setAttribute("aria-pressed", pleine ? "true" : "false");
-            if (chiffre) chiffre.textContent = pleine ? symbole : "";
+            var texte = b.classList.contains("pose__case--bas") ? "+1" : String(valeur);
+            if (chiffre) chiffre.textContent = valeur > 0 ? texte : "";
           });
         });
       }
+
+      /* ---------- Potence de division ---------- */
+
+      function divBrancher() {
+        divCases = Array.prototype.slice.call(zone.querySelectorAll("[data-role]"))
+          .sort(function (a, b) {
+            return Number(a.getAttribute("data-ordre")) - Number(b.getAttribute("data-ordre"));
+          });
+        divCases.forEach(function (b) {
+          b.addEventListener("click", function () {
+            divActif = b;
+            divMajActif();
+          });
+        });
+        divActif = null;
+        divMajActif();
+      }
+
+      function divMajActif() {
+        divCases.forEach(function (b) { b.classList.toggle("actif", b === divActif); });
+      }
+
+      function divValeur(b) {
+        return b && b.textContent.trim() !== "" ? b.textContent.trim() : "";
+      }
+
+      function divPoser(b, c) {
+        b.textContent = c;
+        b.classList.remove("juste", "faux");
+      }
+
+      function divVide(b) {
+        return divValeur(b) === "";
+      }
+
+      function divEcrire(c) {
+        if (!divCases.length) return;
+        var b = (divActif && divCases.indexOf(divActif) !== -1) ? divActif : null;
+        if (!b) b = divCases.filter(divVide)[0] || divCases[divCases.length - 1];
+        divPoser(b, c);
+        divActif = b;
+        divMajActif();
+        var suivante = divCases[divCases.indexOf(b) + 1];
+        if (suivante && divVide(suivante)) divActif = suivante;
+        divMajActif();
+        Q.audio && Q.audio.son && Q.audio.son("page");
+      }
+
+      function divEffacer() {
+        if (!divCases.length) return;
+        var b = divActif || divCases[divCases.length - 1];
+        if (divValeur(b) !== "") {
+          divPoser(b, "");
+        } else {
+          var i = divCases.indexOf(b) - 1;
+          if (i >= 0) { divActif = divCases[i]; divPoser(divActif, ""); }
+        }
+        divMajActif();
+      }
+
+      function divToutEffacer() {
+        divCases.forEach(function (b) { divPoser(b, ""); });
+        divActif = null;
+        divMajActif();
+      }
+
+      function divRemplir(etape) {
+        divCases.forEach(function (b) {
+          if (Number(b.getAttribute("data-etape")) === etape) {
+            divPoser(b, String(b.getAttribute("data-attendu")));
+          }
+        });
+      }
+
+      function divRemplirTout() {
+        divCases.forEach(function (b) { divPoser(b, String(b.getAttribute("data-attendu"))); });
+      }
+
+      function divEtapeEnCours() {
+        if (divActif) return Number(divActif.getAttribute("data-etape"));
+        var vide = divCases.filter(divVide)[0];
+        return vide ? Number(vide.getAttribute("data-etape")) : null;
+      }
+
+      function divVerifier() {
+        var vides = 0;
+        var faux = 0;
+        divCases.forEach(function (b) {
+          var v = divValeur(b);
+          if (v === "") { vides += 1; return; }
+          var ok = v === String(b.getAttribute("data-attendu"));
+          b.classList.toggle("juste", ok);
+          b.classList.toggle("faux", !ok);
+          if (!ok) faux += 1;
+        });
+        if (vides) {
+          dire("Il reste " + vides + " case" + (vides > 1 ? "s" : "") + " à remplir",
+            "Écris chaque chiffre : quotient, produit, différence.", "ko");
+          return;
+        }
+        if (faux) {
+          essais += 1;
+          dire("Presque !", faux + " chiffre" + (faux > 1 ? "s" : "") +
+            " à revoir. Les cases vertes sont justes, les orangées non.", "ko");
+          return;
+        }
+        var m = question.potence;
+        dire("Bravo !", "Quotient " + m.quotient + ", reste " + m.reste + ".", "ok");
+      }
+
+      /* ---------- Saisie des autres opérations ---------- */
 
       function nouvelle() {
         majLibelles();
         question = Q.generateur.tirer(gabarit());
         saisie = "";
+        champs = { quotient: "", reste: "" };
+        champActif = "quotient";
         essais = 0;
+        divCases = [];
+        divActif = null;
         retour.className = "zone-feedback espace-haut-sm";
         retour.innerHTML = "";
+        if (op === "division") {
+          question.potence = Q.exercices.etapesDivision(question.nombres.a, question.nombres.b);
+          zone.innerHTML = '<div class="potence-zone">' +
+            Q.exercices.potenceHTML(question) + "</div>";
+          divBrancher();
+          return;
+        }
         zone.innerHTML = Q.exercices.poseHTML(question);
         zone.setAttribute("data-a", question.nombres.a);
         zone.setAttribute("data-b", question.nombres.b);
         majAffichage();
+        majChamps();
         lierCases();
+      }
+
+      function chiffreMax() {
+        return Math.max(String(question.nombres.a).length, String(question.nombres.b).length) + 1;
       }
 
       function ajouter(c) {
         if (!question) return;
-        /* De droite à gauche : le chiffre tapé se pose à gauche. */
-        var maxi = Math.max(String(question.nombres.a).length, String(question.nombres.b).length) + 1;
-        if (saisie.length >= maxi) return;
+        if (saisie.length >= chiffreMax()) return;
         saisie = c + saisie;
         majAffichage();
       }
 
       function effacer() {
+        if (!question) return;
         saisie = saisie.slice(1);
         majAffichage();
       }
 
+      function effacerTout() {
+        saisie = "";
+        majAffichage();
+        Array.prototype.forEach.call(zone.querySelectorAll("[data-marque]"), function (m) {
+          m.setAttribute("data-valeur", "0");
+          m.classList.remove("pleine");
+          m.setAttribute("aria-pressed", "false");
+          var c = m.querySelector(".pose__chiffre");
+          if (c) c.textContent = "";
+        });
+      }
+
       function valider() {
         if (!question) return;
+        if (op === "division") { divVerifier(); return; }
         if (!saisie) { dire("Écris le résultat", "Utilise le clavier pour écrire le nombre.", "ko"); return; }
         if (Number(saisie) === question.reponse) {
           dire("Bravo !", essais === 0 ? "Du premier coup." : "C'est la bonne réponse.", "ok");
         } else {
           essais += 1;
-          dire("Ce n'est pas encore ça", "Regarde bien : as-tu écrit tes reports ?", "ko");
+          dire("Ce n'est pas encore ça", "Regarde bien où tu en es dans ton calcul.", "ko");
         }
       }
 
-      /* Remplit les cases avec les reports attendus. */
       function reveler() {
         if (!question) return;
+        if (op === "division") {
+          var etape = divEtapeEnCours();
+          if (etape == null) { dire("Tout est déjà rempli", "Vérifie, puis continue.", "ok"); return; }
+          divRemplir(etape);
+          dire("Étape " + (etape + 1), "Quotient, produit et différence sont posés.", "ok");
+          return;
+        }
         var reports = Q.exercices.reportsPose(question);
         var posees = 0;
-        Array.prototype.forEach.call(zone.querySelectorAll("[data-marque]"), function (bouton) {
-          var morceaux = String(bouton.getAttribute("data-marque")).split(":");
+        Array.prototype.forEach.call(zone.querySelectorAll("[data-marque]"), function (b) {
+          var morceaux = String(b.getAttribute("data-marque")).split(":");
           var famille = morceaux[0];
           var col = Number(morceaux[1]);
-          var symbole = bouton.getAttribute("data-symbole") || "1";
-          var pleine = !!(reports[famille] && reports[famille][col]);
-          if (pleine) posees += 1;
-          bouton.classList.toggle("pleine", pleine);
-          bouton.setAttribute("aria-pressed", pleine ? "true" : "false");
-          var chiffre = bouton.querySelector(".pose__chiffre");
-          if (chiffre) chiffre.textContent = pleine ? symbole : "";
+          var valeur = (reports[famille] && reports[famille][col]) || 0;
+          if (valeur > 0) posees += 1;
+          b.setAttribute("data-valeur", valeur);
+          b.classList.toggle("pleine", valeur > 0);
+          b.setAttribute("aria-pressed", valeur > 0 ? "true" : "false");
+          var chiffre = b.querySelector(".pose__chiffre");
+          var texte = famille === "bas" ? "+1" : String(valeur);
+          if (chiffre) chiffre.textContent = valeur > 0 ? texte : "";
         });
-        var plus = op === "addition";
-        dire(plus ? "Voici où vont les retenues" : "Voici où vont les emprunts",
-          posees
-            ? (plus ? "À toi de terminer le calcul." : "Un 1 au-dessus du chiffre du haut, un +1 au-dessus de celui du bas.")
-            : "Cette opération n'a besoin d'aucun report.",
+        dire(op === "soustraction" ? "Voici où vont les emprunts" : "Voici où vont les retenues",
+          posees ? "À toi de terminer le calcul." : "Cette opération n'a besoin d'aucun report.",
           "ok");
       }
 
       function solution() {
         if (!question) return;
-        var plus = op === "addition";
+        if (op === "division") {
+          divRemplirTout();
+          var m = question.potence;
+          dire("Quotient " + m.quotient + ", reste " + m.reste + ".",
+            question.nombres.a + " ÷ " + question.nombres.b, "ok");
+          return;
+        }
         dire("La réponse est " + Q.generateur.formatNombre(question.reponse) + ".",
-          question.nombres.a + (plus ? " + " : " − ") + question.nombres.b, "ok");
+          question.nombres.a + " " + question.operation + " " + question.nombres.b, "ok");
       }
 
       Array.prototype.forEach.call(pave.querySelectorAll("[data-chiffre]"), function (b) {
-        b.addEventListener("click", function () { ajouter(b.getAttribute("data-chiffre")); });
+        b.addEventListener("click", function () {
+          var c = b.getAttribute("data-chiffre");
+          if (op === "division") divEcrire(c); else ajouter(c);
+        });
       });
-      pave.querySelector('[data-action="effacer"]').addEventListener("click", effacer);
+      pave.querySelector('[data-action="effacer"]').addEventListener("click", function () {
+        if (op === "division") divEffacer(); else effacer();
+      });
 
       Array.prototype.forEach.call(document.querySelectorAll("[data-action]"), function (b) {
         b.addEventListener("click", function () {
@@ -260,7 +481,9 @@
           if (a === "nouvelle") nouvelle();
           if (a === "reveler") reveler();
           if (a === "solution") solution();
-          if (a === "effacer-tout") { saisie = ""; majAffichage(); }
+          if (a === "effacer-tout") {
+            if (op === "division") divToutEffacer(); else effacerTout();
+          }
         });
       });
 
@@ -285,9 +508,13 @@
       });
 
       document.addEventListener("keydown", function (e) {
-        if (/^[0-9]$/.test(e.key)) { ajouter(e.key); e.preventDefault(); }
-        else if (e.key === "Backspace") { effacer(); e.preventDefault(); }
-        else if (e.key === "Enter") { valider(); e.preventDefault(); }
+        if (/^[0-9]$/.test(e.key)) {
+          if (op === "division") divEcrire(e.key); else ajouter(e.key);
+          e.preventDefault();
+        } else if (e.key === "Backspace") {
+          if (op === "division") divEffacer(); else effacer();
+          e.preventDefault();
+        } else if (e.key === "Enter") { valider(); e.preventDefault(); }
       });
 
       nouvelle();

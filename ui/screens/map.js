@@ -55,6 +55,7 @@
         '<div class="rangee" style="justify-content:space-between;flex-wrap:wrap;gap:8px">' +
           '<button class="btn btn--secondaire" data-nav="carnet">' + Q.ui.icon("carnet") + " Carnet de bord</button>" +
           '<button class="btn btn--secondaire" data-nav="boutique">' + Q.ui.icon("coffre") + " Boutique</button>" +
+          '<button class="btn btn--secondaire" data-nav="tables">' + Q.ui.icon("roue") + " Salle des tables</button>" +
           '<button class="btn btn--secondaire" data-nav="reglages">' + Q.ui.icon("engrenage") + " Réglages</button>" +
           '<button class="btn btn--fantome" id="btn-parent" title="Espace parent (appui long)">' + Q.ui.icon("cadenas") + " Parents</button>" +
         "</div>" +

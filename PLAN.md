@@ -22,9 +22,11 @@
 Conséquences sur le chiffrage : le lot contenu passe de 12 h à ~20 h, le lot moteur gagne +4 h
 (calcul posé), et l'arrondi au supérieur sort du périmètre v1. Total révisé : **≈ 45 h** (§ 11).
 
-**État au 11/11/2026** : lots **L0, L1, L2 et L3 terminés**. Le jeu est jouable de bout en bout
-et le contenu est complet : **160 énoncés** (40 par île, 10 par niveau, 3 formulations).
-Reste la Salle des tables et la recette. Voir `README.md`.
+**État au 11/11/2026** : lots **L0 à L5 terminés**. Le jeu est jouable de bout en bout et le
+contenu est complet : **160 énoncés** (40 par île, 10 par niveau, 3 formulations). La Salle des
+tables et la carte de chaleur des parents sont en place. Une page d'essai (`essai-retenues.html`)
+valide les opérations posées, dont la potence de division avec ses résultats intermédiaires.
+Reste l'intégration de la potence aux quêtes et la recette. Voir `README.md`.
 
 ---
 
@@ -360,8 +362,10 @@ retenues étant réservée au-dessus. Deux règles de conception :
 - une case fausse n'invalide pas tout : on signale la colonne fautive et son type d'erreur
   (`retenue`, `emprunt`), ce qui alimente directement les micro-leçons du § 5.3.
 
-Pour la division, on n'affiche **pas** la potence (mise en page piégeuse et peu lisible sur mobile) :
-on garde les deux champs « quotient / reste ».
+Pour la division, la version jouable garde les deux champs « quotient / reste ». Une **potence
+complète** (chiffres descendus, produits et différences de chaque étape) est disponible sur la
+page d'essai `essai-retenues.html` : on valide d'abord la lisibilité et le geste sur mobile avant
+de l'intégrer aux quêtes.
 
 ### 5.2 Leurres : fabriqués par famille d'erreur
 
@@ -619,8 +623,8 @@ silencieusement dans un fork.
 | **L1 — Générateur** | DSL (5 primitives), contraintes (`retenues`, `emprunts`), pluriels, `texteOral`, 20 gabarits d'essai + linter | `node tools/lint-enonces.js` = 0 erreur sur 10 000 tirages | 4 h |
 | **L2 — Moteur de question** | qcm, pavé numérique, **calcul posé en colonnes**, leurres par famille, feedback procédural, TTS | ✅ quête de 8 questions jouable, y compris posée et division à 2 champs | 9 h — fait |
 | **L3 — Contenu** | **160 gabarits** (40/île, 10/niveau), 4 Gardiens, récit, badges, 20 stratégies | ✅ 4 îles terminables, 0 erreur de lint | 13 h — fait |
-| **L4 — Progression** | SRS compétences ✅, étoiles ✅, or ✅, boutique ✅, carnet ✅ ; reste la **Salle des tables** et le calibrage | boucle longue complète (1 semaine de jeu simulée) | 2 h |
-| **L5 — Parents & données** | PIN, récompenses, carte de chaleur, export/import, corbeille | parchemin imprimé + sauvegarde restaurée | 2 h |
+| **L4 — Progression** | SRS compétences, étoiles, or, boutique, carnet, **Salle des tables** | ✅ boucle complète, record et badge de table | 2 h — fait |
+| **L5 — Parents & données** | PIN, récompenses, **carte de chaleur**, erreurs par famille, export/import, corbeille | ✅ parchemin imprimé + sauvegarde restaurée | 2 h — fait |
 | **L6 — Polish** | accessibilité, clavier, responsive 320 px, animations, contrastes | recette accessibilité passée | 2 h |
 | **L7 — Recette** | lint massif, test navigateur, test « vrai enfant », calibrage or | liste de bugs corrigée | 3 h |
 
@@ -681,10 +685,10 @@ de test navigateur au vert.
 
 Reste :
 
-1. **L4** — Salle des tables (entraînement libre aux 10 tables) et calibrage de l'or après
+1. **L6** — intégrer aux quêtes la potence de division (produits et différences intermédiaires)
+   et la multiplication posée, validées sur `essai-retenues.html`, puis calibrage de l'or après
    deux semaines de test réel.
-2. **L5** — carte de chaleur des erreurs par famille dans l'espace parent.
-3. **L6-L7** — recette accessibilité et test « vrai enfant ».
+2. **L7** — recette accessibilité et test « vrai enfant ».
 
 Le contenu peut encore grandir : ajouter 10 énoncés à un niveau demande un fichier et zéro
 ligne de moteur.

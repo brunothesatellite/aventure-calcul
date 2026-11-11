@@ -165,6 +165,7 @@ async function main() {
       ["essai", { ileId: "division", niveauId: "division-3" }],
       ["carnet", null],
       ["boutique", null],
+      ["tables", null],
       ["reglages", null],
       ["parent", null],
       ["home", null]
@@ -262,8 +263,12 @@ async function main() {
     pas("cases de retenues", nbCases === 4, nbCases + " cases");
     pas("retenue attendue en correction",
       /pose__case[^"]*pleine/.test(Q.exercices.poseHTML(exemplePose, { corrige: true })));
-    const exempleMul = { nombres: { a: 24, b: 3 }, operation: "×", reponse: 72 };
-    pas("pas de retenues en multiplication", !/data-marque=/.test(Q.exercices.poseHTML(exempleMul)));
+    const exempleFois = { nombres: { a: 47, b: 3 }, operation: "×", reponse: 141 };
+    const reportsFois = Q.exercices.reportsPose(exempleFois);
+    pas("retenues de multiplication",
+      reportsFois.haut[1] === 2 && reportsFois.haut[2] === 1 &&
+      /data-cycle="9"/.test(Q.exercices.poseHTML(exempleFois)),
+      JSON.stringify(reportsFois));
 
     /* Soustraction posée : méthode par compensation. */
     const exempleSub = { nombres: { a: 452, b: 187 }, operation: "−", reponse: 265 };
@@ -273,11 +278,29 @@ async function main() {
       JSON.stringify(marquesSub));
     const reportsSub = Q.exercices.reportsPose(exempleSub);
     pas("compensation : +10 en haut, +1 en bas",
-      reportsSub.haut[0] === true && reportsSub.bas[1] === true &&
-      reportsSub.haut[1] === true && reportsSub.bas[2] === true,
+      reportsSub.haut[0] === 1 && reportsSub.bas[1] === 1 &&
+      reportsSub.haut[1] === 1 && reportsSub.bas[2] === 1,
       JSON.stringify(reportsSub));
     pas("emprunt attendu en correction",
       /pose__case[^"]*pleine/.test(Q.exercices.poseHTML(exempleSub, { corrige: true })));
+
+    /* Division posée : potence et résultats intermédiaires. */
+    const divPose = Q.exercices.etapesDivision(632, 4);
+    pas("division posée : quotient et reste",
+      divPose.quotient === "158" && divPose.reste === 0,
+      divPose.quotient + " r " + divPose.reste);
+    pas("division posée : produits successifs",
+      divPose.steps.map((s) => s.produit).join(",") === "4,20,32",
+      divPose.steps.map((s) => s.produit).join(","));
+    pas("division posée : différences successives",
+      divPose.steps.map((s) => s.difference).join(",") === "2,3,0",
+      divPose.steps.map((s) => s.difference).join(","));
+    const htmlPotence = Q.exercices.potenceHTML({ nombres: { a: 632, b: 4 } });
+    pas("potence : 11 cases à remplir",
+      (htmlPotence.match(/data-role=/g) || []).length === 11,
+      (htmlPotence.match(/data-role=/g) || []).length + " cases");
+    pas("potence : chiffres descendus",
+      (htmlPotence.match(/potence__chiffre--descendu/g) || []).length === 2);
 
     /* Variété : une quête ne doit pas répéter huit fois la même histoire. */
     const variete = Q.session.construire({ ileId: "addition", niveauId: "addition-1", mode: "niveau" });
@@ -288,6 +311,35 @@ async function main() {
     const melange = Q.session.construire({ ileId: "multiplication", niveauId: "multiplication-4", mode: "niveau" });
     const niveaux = new Set(melange.questions.map((q) => q.niveau));
     pas("rappel des niveaux précédents", niveaux.size >= 2, "niveaux " + [...niveaux].join(", "));
+
+    /* ---- Salle des tables : une partie complète ---- */
+    Q.router.go("tables");
+    const boutonTable = document.querySelector('[data-table="7"]');
+    pas("salle des tables : menu", !!boutonTable);
+    if (boutonTable) {
+      boutonTable.click();
+      let toursTable = 0, okTable = true;
+      while (Q.router.ecran === "tables" && !document.querySelector(".resultat") && toursTable < 12) {
+        toursTable++;
+        const fort = document.querySelector(".texte-enonce strong");
+        if (!fort) { okTable = false; break; }
+        const parts = fort.textContent.split("×").map((s) => Number(s.trim()));
+        String(parts[0] * parts[1]).split("").forEach((c) => {
+          const touche = document.querySelector('[data-chiffre="' + c + '"]');
+          if (touche) touche.click();
+        });
+        document.querySelector('[data-action="valider"]').click();
+        const suite = document.querySelector("[data-suite]");
+        if (suite) suite.click();
+      }
+      pas("salle des tables : partie jouée", okTable && toursTable === 10, toursTable + " questions");
+      const bilanTables = document.getElementById("screen-tables").textContent;
+      pas("salle des tables : bilan 10/10", bilanTables.indexOf("10/10") !== -1);
+      const recordTable = (Q.etat.tables["7"] || {}).record;
+      pas("salle des tables : record enregistré", recordTable === 10, "record " + recordTable);
+      Q.ui.fermerModale();
+    }
+    Q.router.go("map");
 
     /* ---- Quête réellement jouée dans le DOM (QCM) ---- */
     Q.router.go("ile", { id: "addition" });
@@ -393,14 +445,22 @@ async function main() {
       aides: { eliminer: 0, decomposer: 0, astuce: 0, indice: 0 }, orGagne: 0, fini: false
     };
     Q.router.go("quete");
-    const caseRetenue = document.querySelector("#screen-quete [data-marque]");
+    const caseRetenue = document.querySelector('#screen-quete [data-marque][data-valeur="0"]') ||
+      document.querySelector("#screen-quete [data-marque]");
     pas("case de retenue à l'écran", !!caseRetenue);
     if (caseRetenue) {
+      const depart = caseRetenue.getAttribute("data-valeur");
       caseRetenue.click();
+      const attendue = Number(depart) > 0 ? "0" : "1";
       pas("case de retenue cochée",
-        caseRetenue.classList.contains("pleine") && caseRetenue.textContent.trim() === "1");
+        caseRetenue.getAttribute("data-valeur") === attendue &&
+        caseRetenue.textContent.trim() === (attendue === "1" ? "1" : ""),
+        "valeur " + caseRetenue.getAttribute("data-valeur"));
       caseRetenue.click();
-      pas("case de retenue effacée", !caseRetenue.classList.contains("pleine"));
+      pas("case de retenue effacée",
+        Number(caseRetenue.getAttribute("data-valeur")) === 0 &&
+        !caseRetenue.classList.contains("pleine"),
+        "valeur " + caseRetenue.getAttribute("data-valeur"));
     }
 
     /* Saisie de droite à gauche : 905 se tape 5, puis 0, puis 9. */
@@ -439,6 +499,9 @@ async function main() {
     Q.etat.pin = "1234";
     Q.parentDebloque = true;
     Q.router.go("parent");
+    pas("carte de chaleur", !!document.querySelector("#screen-parent .chaleur"));
+    pas("erreurs par famille",
+      /Erreurs par famille/.test(document.getElementById("screen-parent").textContent));
     const btnDebloquer = document.querySelector('[data-action="debloquer"]');
     pas("bouton Tout débloquer", !!btnDebloquer);
     if (btnDebloquer) {

@@ -29,6 +29,8 @@
       journal: [],
       pin: null,
       quest: null,
+      /* Salle des tables : records par table (clé "2".."10" ou "mixte"). */
+      tables: {},
       /* Mode test (espace parent) : sauvegarde de la progression réelle
          mise de côté le temps de tout débloquer. */
       testDeblocage: null,
@@ -104,7 +106,8 @@
     });
     etat.or = Number(etat.or) || 0;
     etat.orGagne = Number(etat.orGagne) || 0;
-    if (etat.testDeblocage && typeof etat.testDeblocage !== "object") etat.testDeblocage = null;
+    if (!objet(etat.testDeblocage) && etat.testDeblocage !== null) etat.testDeblocage = null;
+    if (!objet(etat.tables)) etat.tables = {};
     etat.serie.actuelle = Number(etat.serie.actuelle) || 0;
     etat.serie.record = Number(etat.serie.record) || 0;
     etat.compteurs.quetes = Number(etat.compteurs.quetes) || 0;

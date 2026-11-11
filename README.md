@@ -89,6 +89,9 @@ Conséquence pédagogique : la répétition espacée ne porte plus sur des quest
 | Carte de l'archipel, 4 îles, déblocage à 6 ★/12 | ✅ |
 | Hub d'île, 4 niveaux, Gardien | ✅ |
 | Quête : QCM, pavé, calcul posé, division à 2 champs | ✅ |
+| **Division posée (potence)** : quotient, produits et différences, chiffres descendus | ✅ page d'essai |
+| **Salle des tables** : 9 tables + mixte, record, 5 pièces si 10/10 | ✅ |
+| **Carte de chaleur** : étoiles île × niveau, erreurs par famille, compétences fragiles | ✅ espace parent |
 | Étoiles, or, série, répétition espacée, révision du jour | ✅ |
 | Boutique (3 familiers, 20 déguisements, récompenses réelles) | ✅ |
 | Carnet de bord, badges, carnet de stratégies, journal | ✅ |
@@ -145,6 +148,7 @@ node tools/generer-manifest.js       # régénère assets/manifest.json + CREDIT
 
 ```
 index.html              point d'entrée, ordre de chargement des scripts
+essai-retenues.html     page d'essai : les 4 opérations posées (potence de division incluse)
 main.js                 démarrage, réglages, navigation globale
 content/
   registry.js           enregistrement + validation du contenu
@@ -185,9 +189,10 @@ tools/                  linter, test navigateur, captures, manifest
 | Lot | Contenu |
 |---|---|
 | ✅ **L3** | Les 160 énoncés (40 par île, 10 par niveau, 3 formulations) |
-| L4 | Salle des tables, calibrage de l'économie après test réel |
-| L5 | Espace parent enrichi : carte de chaleur des erreurs par famille |
-| L6-L7 | Polish accessibilité, recette, test « vrai enfant » |
+| ✅ **L4** | Salle des tables (9 tables + mixte, records, badge) |
+| ✅ **L5** | Espace parent enrichi : carte de chaleur, erreurs par famille, compétences fragiles |
+| L6 | Intégrer dans les quêtes la potence de division et la multiplication posée validées sur la page d'essai |
+| L7 | Polish accessibilité, recette, test « vrai enfant » |
 
 Détail complet dans [`PLAN.md`](PLAN.md).
 

@@ -67,6 +67,11 @@
       icone: "epee", test: function (s) { return ((s.compteurs || {}).gardiens || 0) >= 2; } },
     { id: "memoire-de-fer", nom: "Mémoire de fer", desc: "Rendre solides 20 compétences",
       icone: "joyau", test: function () { return Q.srs.stats().solides >= 20; } },
+    { id: "table-parfaite", nom: "Table parfaite", desc: "Réussir 10 sur 10 à une table",
+      icone: "roue", test: function (s) {
+        var t = s.tables || {};
+        return Object.keys(t).some(function (k) { return (t[k].record || 0) >= 10; });
+      } },
     { id: "apprenti-calculateur", nom: "Apprenti calculateur", desc: "Terminer 10 quêtes",
       icone: "barque", test: function (s) { return ((s.compteurs || {}).quetes || 0) >= 10; } },
     { id: "vieux-loup-de-mer", nom: "Vieux loup de mer", desc: "Terminer 30 quêtes",

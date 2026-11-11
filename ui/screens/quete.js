@@ -375,16 +375,21 @@
       });
 
       /* Cahier de brouillon : l'enfant écrit lui-même ses reports.
-         En haut la retenue (ou le +10), en bas le +1 de compensation. */
+         Un tap pose un 1 (ou monte la retenue jusqu'à 9). */
       Array.prototype.forEach.call(el.querySelectorAll("[data-marque]"), function (b) {
         b.addEventListener("click", function () {
           var question = questionCourante();
           if (!question || question.termine) return;
-          var chiffre = b.querySelector(".pose__chiffre");
-          var symbole = b.getAttribute("data-symbole") || "1";
-          var pleine = b.classList.toggle("pleine");
+          var cycle = Number(b.getAttribute("data-cycle") || 1);
+          var valeur = Number(b.getAttribute("data-valeur") || 0);
+          valeur = valeur >= cycle ? 0 : valeur + 1;
+          b.setAttribute("data-valeur", valeur);
+          var pleine = valeur > 0;
+          b.classList.toggle("pleine", pleine);
           b.setAttribute("aria-pressed", pleine ? "true" : "false");
-          if (chiffre) chiffre.textContent = pleine ? symbole : "";
+          var chiffre = b.querySelector(".pose__chiffre");
+          var texte = b.classList.contains("pose__case--bas") ? "+1" : String(valeur);
+          if (chiffre) chiffre.textContent = pleine ? texte : "";
           Q.audio.son("page");
         });
       });
@@ -400,7 +405,18 @@
         b.addEventListener("click", function () {
           var a = b.getAttribute("data-action");
           if (a === "effacer") effacer();
-          if (a === "effacer-tout") { saisie = ""; saisieChamps = {}; majAffichage(q); }
+          if (a === "effacer-tout") {
+            saisie = "";
+            saisieChamps = {};
+            majAffichage(q);
+            Array.prototype.forEach.call(el.querySelectorAll("[data-marque]"), function (m) {
+              m.setAttribute("data-valeur", "0");
+              m.classList.remove("pleine");
+              m.setAttribute("aria-pressed", "false");
+              var c = m.querySelector(".pose__chiffre");
+              if (c) c.textContent = "";
+            });
+          }
           if (a === "valider") valider();
           if (a === "ecouter") Q.audio.parler(q.texteOral || q.texte);
           if (a === "quitter") {

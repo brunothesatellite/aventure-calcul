@@ -98,9 +98,53 @@
     rafraichir();
   }
 
+  /* ---------- Carte de chaleur ---------- */
+
+  function lignesChaleur() {
+    return (Q.curriculum().ordre || []).map(function (id) {
+      var ile = Q.ile(id);
+      if (!ile) return "";
+      var cells = ile.niveaux.map(function (n) {
+        var et = ((Q.etat.progression || {})[n.id] || {}).etoiles || 0;
+        return '<td class="chaud chaud-' + et + '">' + et + "</td>";
+      }).join("");
+      return "<tr><th>" + Q.ui.echapper(ile.nom) + "</th>" + cells + "</tr>";
+    }).join("");
+  }
+
+  function erreursFamilles() {
+    var erreurs = Q.etat.stats.erreurs || {};
+    var cles = Object.keys(erreurs).sort(function (a, b) { return erreurs[b] - erreurs[a]; });
+    if (!cles.length) return '<p class="discret">Aucune erreur enregistrée pour le moment.</p>';
+    var maxi = 1;
+    cles.forEach(function (k) { if (erreurs[k] > maxi) maxi = erreurs[k]; });
+    return cles.map(function (k) {
+      var n = erreurs[k];
+      var pct = Math.round((n / maxi) * 100);
+      return '<div class="erreur-ligne">' +
+        '<span class="erreur-ligne__nom">' + Q.ui.echapper(Q.feedback.typesErreurs[k] || k) + "</span>" +
+        '<span class="erreur-ligne__barre"><span style="width:' + pct + '%"></span></span>' +
+        '<span class="erreur-ligne__n">' + n + "</span></div>";
+    }).join("");
+  }
+
+  function competencesFragiles() {
+    var liste = Object.keys(Q.etat.srs || {})
+      .map(function (k) { return { cle: k, carte: Q.etat.srs[k] }; })
+      .filter(function (x) { return x.carte.echecs > 0; })
+      .sort(function (a, b) { return b.carte.echecs - a.carte.echecs; })
+      .slice(0, 6);
+    if (!liste.length) return '<p class="discret">Rien de fragile pour le moment.</p>';
+    return '<table class="tableau"><thead><tr><th>Compétence</th><th>Échecs</th><th>Boîte</th></tr></thead><tbody>' +
+      liste.map(function (x) {
+        var c = Q.competence(x.cle);
+        return "<tr><td>" + Q.ui.echapper(c ? c.nom : x.cle) + "</td><td>" + x.carte.echecs +
+          "</td><td>" + x.carte.boite + "/4</td></tr>";
+      }).join("") + "</tbody></table>";
+  }
+
   /* ---------- Tableau de bord ---------- */
-  function tableauDeBord(el) {
-    var s = Q.etat.stats;
+  function tableauDeBord(el) {    var s = Q.etat.stats;
     var srs = Q.srs.stats();
     var erreurs = Object.keys(s.erreurs || {}).sort(function (a, b) { return s.erreurs[b] - s.erreurs[a]; }).slice(0, 6);
 
@@ -148,6 +192,20 @@
             erreurs.map(function (k) { return "<tr><td>" + Q.ui.echapper(Q.feedback.typesErreurs[k] || k) + "</td><td>" + s.erreurs[k] + "</td></tr>"; }).join("") +
             "</tbody></table>"
           : '<p class="discret">Rien à signaler pour le moment.</p>') +
+      "</div>" +
+
+      '<div class="carte espace-haut"><h2>Carte de chaleur</h2>' +
+        '<p class="discret">Étoiles par île et par niveau. 0 = pas encore joué, 3 = maîtrisé.</p>' +
+        '<table class="chaleur">' +
+          "<thead><tr><th></th><th>Niv. 1</th><th>Niv. 2</th><th>Niv. 3</th><th>Niv. 4</th></tr></thead>" +
+          "<tbody>" + lignesChaleur() + "</tbody>" +
+        "</table>" +
+
+        '<h3 class="espace-haut-sm">Erreurs par famille</h3>' +
+        erreursFamilles() +
+
+        '<h3 class="espace-haut-sm">Compétences fragiles</h3>' +
+        competencesFragiles() +
       "</div>" +
 
       '<div class="carte espace-haut"><h2>Récompenses réelles</h2>' +
