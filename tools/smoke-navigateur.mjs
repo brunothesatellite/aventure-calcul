@@ -240,8 +240,13 @@ async function main() {
 
     const div = Q.session.construire({ ileId: "division", niveauId: "division-3", mode: "niveau" });
     const avecReste = div ? div.questions.filter((x) => x.competence === "div.reste") : [];
-    pas("division à deux champs", avecReste.length >= 2 && avecReste.every((x) => x.champs && x.champs.length === 2),
-      avecReste.length + " questions à deux champs");
+    pas("division : deux champs ou potence",
+      avecReste.length >= 2 && avecReste.every((x) =>
+        x.type === "potence" || (x.champs && x.champs.length === 2)),
+      avecReste.map((x) => x.type).join(","));
+    const gabaritsPotence = Q.tousLesEnonces().filter((g) => g.mode === "potence");
+    pas("8 gabarits de division posée", gabaritsPotence.length === 8,
+      gabaritsPotence.length + " gabarits");
 
     /* Le gabarit posé doit produire une question posée (test direct,
        car une quête de 5 questions ne le tire pas forcément). */
@@ -472,6 +477,43 @@ async function main() {
     const affiche = document.getElementById("pose-resultat");
     pas("saisie de droite à gauche", !!affiche && affiche.textContent === attenduPose,
       affiche ? affiche.textContent + " (attendu " + attenduPose + ")" : "absent");
+
+    /* Potence de division réellement jouée dans l'écran de quête. */
+    const qPotence = Q.exercices.construire(Q.enonce("div-reste-25"));
+    Q.etat.quest = {
+      ileId: "division", niveauId: "division-3", mode: "niveau", operation: "division",
+      creeLe: Date.now(), questions: [qPotence], index: 0,
+      aides: { eliminer: 0, decomposer: 0, astuce: 0, indice: 0 }, orGagne: 0, fini: false
+    };
+    Q.router.go("quete");
+    const casesPotence = Array.prototype.slice.call(
+      document.querySelectorAll("#screen-quete [data-role]"));
+    pas("potence à l'écran", qPotence.type === "potence" && casesPotence.length >= 6,
+      qPotence.type + " · " + casesPotence.length + " cases");
+
+    /* Une case fausse compte comme un essai, même avec le bon quotient. */
+    const parOrdre = Array.prototype.slice.call(document.querySelectorAll("#screen-quete [data-role]"))
+      .sort((a, b) => Number(a.getAttribute("data-ordre")) - Number(b.getAttribute("data-ordre")));
+    parOrdre.forEach(function (b, i) {
+      const d = i === 0 ? String((Number(b.getAttribute("data-attendu")) + 1) % 10) : b.getAttribute("data-attendu");
+      b.click();
+      const touche = document.querySelector('#screen-quete [data-chiffre="' + d + '"]');
+      if (touche) touche.click();
+    });
+    document.querySelector("#screen-quete [data-action='valider']").click();
+    pas("potence : case fausse signalée",
+      document.querySelectorAll("#screen-quete .potence__case.faux").length === 1,
+      document.querySelectorAll("#screen-quete .potence__case.faux").length + " fausse(s)");
+    pas("potence : premier essai raté", !qPotence.termine);
+    document.querySelectorAll("#screen-quete .potence__case.faux").forEach(function (b) {
+      b.click();
+      const touche = document.querySelector('#screen-quete [data-chiffre="' + b.getAttribute("data-attendu") + '"]');
+      if (touche) touche.click();
+    });
+    document.querySelector("#screen-quete [data-action='valider']").click();
+    pas("potence : réussie après correction", qPotence.reussi === true && !!qPotence.premierCoup === false,
+      "reussi " + qPotence.reussi);
+
     Q.etat.quest = null;
     Q.router.go("map");
 

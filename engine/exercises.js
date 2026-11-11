@@ -19,6 +19,7 @@
   }
 
   function typeDe(q) {
+    if (q.mode === "potence") return "potence";
     if (q.mode === "pose") return "pose";
     if (q.reponse && typeof q.reponse === "object") return "saisie";
     if (q.niveau >= 3) return "saisie";
@@ -454,6 +455,11 @@
       }
       if (q.type === "saisie" && q.reponse && typeof q.reponse === "object") {
         q.champs = Object.keys(q.reponse);
+      }
+      /* La potence porte ses propres cases : pas de champ global. */
+      if (q.type === "potence") {
+        q.champs = null;
+        q.labels = null;
       }
       return q;
     },

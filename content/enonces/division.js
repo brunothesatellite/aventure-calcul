@@ -522,13 +522,14 @@
       niveau: 3,
       competence: "div.reste",
       difficulte: 3,
+      mode: "potence",
       nombres: {
-        q: { min: 3, max: 9 },
-        b: { min: 3, max: 8 },
+        q: { min: 12, max: 99 },
+        b: { min: 2, max: 9 },
         r: { min: 1, max: "b - 1" },
         a: { calc: "q * b + r" }
       },
-      contraintes: ["r < b", "a <= 100", "q >= 3", "q != b"],
+      contraintes: ["r < b", "a >= 100", "a <= 999", "q >= 12", "q != b"],
       enonces: [
         "{a} boulets sont rangés dans des caisses de {b}. Combien de caisses pleines, et combien de boulets restent ?",
         "On range {a} boulets par caisses de {b}. Combien de caisses remplit-on, et combien restent dehors ?",
@@ -536,7 +537,6 @@
       ],
       operation: "÷",
       reponse: { quotient: "q", reste: "r" },
-      champs: ["quotient", "reste"],
       labels: { quotient: "Caisses pleines", reste: "Boulets restants" },
       lecon: "reste"
     },
@@ -547,13 +547,14 @@
       niveau: 3,
       competence: "div.reste",
       difficulte: 3,
+      mode: "potence",
       nombres: {
-        q: { min: 3, max: 9 },
-        b: { min: 3, max: 8 },
+        q: { min: 12, max: 99 },
+        b: { min: 2, max: 9 },
         r: { min: 1, max: "b - 1" },
         a: { calc: "q * b + r" }
       },
-      contraintes: ["r < b", "a <= 100", "q >= 3", "q != b"],
+      contraintes: ["r < b", "a >= 100", "a <= 999", "q >= 12", "q != b"],
       enonces: [
         "{a} biscuits sont rangés dans des boîtes de {b}. Combien de boîtes pleines, et combien de biscuits restent ?",
         "On range {a} biscuits par boîtes de {b}. Combien de boîtes remplit-on, et combien restent dehors ?",
@@ -561,7 +562,6 @@
       ],
       operation: "÷",
       reponse: { quotient: "q", reste: "r" },
-      champs: ["quotient", "reste"],
       labels: { quotient: "Boîtes pleines", reste: "Biscuits restants" },
       lecon: "reste"
     },
@@ -572,13 +572,14 @@
       niveau: 3,
       competence: "div.reste",
       difficulte: 3,
+      mode: "potence",
       nombres: {
-        q: { min: 3, max: 9 },
-        b: { min: 3, max: 8 },
+        q: { min: 12, max: 99 },
+        b: { min: 2, max: 9 },
         r: { min: 1, max: "b - 1" },
         a: { calc: "q * b + r" }
       },
-      contraintes: ["r < b", "a <= 100", "q >= 3", "q != b"],
+      contraintes: ["r < b", "a >= 100", "a <= 999", "q >= 12", "q != b"],
       enonces: [
         "{a} coquillages sont rangés dans des sacs de {b}. Combien de sacs pleins, et combien de coquillages restent ?",
         "On range {a} coquillages par sacs de {b}. Combien de sacs remplit-on, et combien restent dehors ?",
@@ -586,7 +587,6 @@
       ],
       operation: "÷",
       reponse: { quotient: "q", reste: "r" },
-      champs: ["quotient", "reste"],
       labels: { quotient: "Sacs pleins", reste: "Coquillages restants" },
       lecon: "reste"
     },
@@ -597,13 +597,14 @@
       niveau: 3,
       competence: "div.reste",
       difficulte: 3,
+      mode: "potence",
       nombres: {
-        q: { min: 3, max: 9 },
-        b: { min: 3, max: 8 },
+        q: { min: 12, max: 99 },
+        b: { min: 2, max: 9 },
         r: { min: 1, max: "b - 1" },
         a: { calc: "q * b + r" }
       },
-      contraintes: ["r < b", "a <= 100", "q >= 3", "q != b"],
+      contraintes: ["r < b", "a >= 100", "a <= 999", "q >= 12", "q != b"],
       enonces: [
         "{a} pièces sont rangées en tas de {b}. Combien de tas complets, et combien de pièces restent ?",
         "On range {a} pièces par tas de {b}. Combien de tas forme-t-on, et combien de pièces restent ?",
@@ -611,7 +612,6 @@
       ],
       operation: "÷",
       reponse: { quotient: "q", reste: "r" },
-      champs: ["quotient", "reste"],
       labels: { quotient: "Tas complets", reste: "Pièces restantes" },
       lecon: "reste"
     },
@@ -622,13 +622,14 @@
       niveau: 3,
       competence: "div.reste",
       difficulte: 3,
+      mode: "potence",
       nombres: {
-        q: { min: 3, max: 9 },
-        b: { min: 3, max: 8 },
+        q: { min: 12, max: 99 },
+        b: { min: 2, max: 9 },
         r: { min: 1, max: "b - 1" },
         a: { calc: "q * b + r" }
       },
-      contraintes: ["r < b", "a <= 100", "q >= 3", "q != b"],
+      contraintes: ["r < b", "a >= 100", "a <= 999", "q >= 12", "q != b"],
       enonces: [
         "{a} pirates montent dans des barques de {b}. Combien de barques pleines, et combien de pirates restent ?",
         "On répartit {a} pirates par barques de {b}. Combien de barques remplit-on, et combien de pirates restent ?",
@@ -636,7 +637,6 @@
       ],
       operation: "÷",
       reponse: { quotient: "q", reste: "r" },
-      champs: ["quotient", "reste"],
       labels: { quotient: "Barques pleines", reste: "Pirates restants" },
       lecon: "reste"
     },
@@ -647,13 +647,14 @@
       niveau: 3,
       competence: "div.reste",
       difficulte: 3,
+      mode: "potence",
       nombres: {
-        q: { min: 3, max: 9 },
-        b: { min: 3, max: 8 },
+        q: { min: 12, max: 99 },
+        b: { min: 2, max: 9 },
         r: { min: 1, max: "b - 1" },
         a: { calc: "q * b + r" }
       },
-      contraintes: ["r < b", "a <= 100", "q >= 3", "q != b"],
+      contraintes: ["r < b", "a >= 100", "a <= 999", "q >= 12", "q != b"],
       enonces: [
         "{a} livres sont rangés sur des étagères de {b}. Combien d'étagères pleines, et combien de livres restent ?",
         "On range {a} livres par étagères de {b}. Combien d'étagères remplit-on, et combien de livres restent ?",
@@ -661,7 +662,6 @@
       ],
       operation: "÷",
       reponse: { quotient: "q", reste: "r" },
-      champs: ["quotient", "reste"],
       labels: { quotient: "Étagères pleines", reste: "Livres restants" },
       lecon: "reste"
     },
@@ -672,13 +672,14 @@
       niveau: 3,
       competence: "div.reste",
       difficulte: 3,
+      mode: "potence",
       nombres: {
-        q: { min: 3, max: 9 },
-        b: { min: 3, max: 8 },
+        q: { min: 12, max: 99 },
+        b: { min: 2, max: 9 },
         r: { min: 1, max: "b - 1" },
         a: { calc: "q * b + r" }
       },
-      contraintes: ["r < b", "a <= 100", "q >= 3", "q != b"],
+      contraintes: ["r < b", "a >= 100", "a <= 999", "q >= 12", "q != b"],
       enonces: [
         "{a} poissons sont rangés dans des filets de {b}. Combien de filets pleins, et combien de poissons restent ?",
         "On range {a} poissons par filets de {b}. Combien de filets remplit-on, et combien de poissons restent ?",
@@ -686,7 +687,6 @@
       ],
       operation: "÷",
       reponse: { quotient: "q", reste: "r" },
-      champs: ["quotient", "reste"],
       labels: { quotient: "Filets pleins", reste: "Poissons restants" },
       lecon: "reste"
     },
@@ -697,13 +697,14 @@
       niveau: 3,
       competence: "div.reste",
       difficulte: 3,
+      mode: "potence",
       nombres: {
-        q: { min: 3, max: 9 },
-        b: { min: 3, max: 8 },
+        q: { min: 12, max: 99 },
+        b: { min: 2, max: 9 },
         r: { min: 1, max: "b - 1" },
         a: { calc: "q * b + r" }
       },
-      contraintes: ["r < b", "a <= 100", "q >= 3", "q != b"],
+      contraintes: ["r < b", "a >= 100", "a <= 999", "q >= 12", "q != b"],
       enonces: [
         "{a} cartes sont rangées en paquets de {b}. Combien de paquets complets, et combien de cartes restent ?",
         "On range {a} cartes par paquets de {b}. Combien de paquets forme-t-on, et combien de cartes restent ?",
@@ -711,7 +712,6 @@
       ],
       operation: "÷",
       reponse: { quotient: "q", reste: "r" },
-      champs: ["quotient", "reste"],
       labels: { quotient: "Paquets complets", reste: "Cartes restantes" },
       lecon: "reste"
     },

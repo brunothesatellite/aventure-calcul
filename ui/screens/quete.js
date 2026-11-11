@@ -17,6 +17,8 @@
     var saisie = "";
     var saisieChamps = {};
     var champActif = null;
+    var potenceCases = [];
+    var potenceActif = null;
 
     function questionCourante() {
       return quete.questions[quete.index] || null;
@@ -31,6 +33,8 @@
       saisie = "";
       saisieChamps = {};
       champActif = q.champs ? q.champs[0] : null;
+      potenceCases = [];
+      potenceActif = null;
 
       var segments = quete.questions.map(function (_, i) {
         var classe = i < quete.index ? "fait" : i === quete.index ? "encours" : "";
@@ -57,7 +61,8 @@
           '<p class="texte-enonce" id="enonce">' + Q.ui.enonceHTML(q.texte) + "</p>" +
 
           '<div class="rangee" style="margin-top:10px">' +
-            '<span class="discret">' + (q.type === "pose" ? "Pose l'opération" : "Trouve le résultat") + "</span>" +
+            '<span class="discret">' + (q.type === "pose" ? "Pose l'opération"
+              : q.type === "potence" ? "Pose la division" : "Trouve le résultat") + "</span>" +
             '<button class="btn btn--fantome btn--rond" data-action="ecouter" aria-label="Écouter l\'énoncé">' +
               Q.ui.icon("haut-parleur") + "</button>" +
           "</div>" +
@@ -85,6 +90,12 @@
       if (q.type === "pose") {
         return '<div class="pose-zone">' +
           Q.exercices.poseHTML(q) +
+          pave(q) +
+        "</div>";
+      }
+      if (q.type === "potence") {
+        return '<div class="potence-zone">' +
+          Q.exercices.potenceHTML(q) +
           pave(q) +
         "</div>";
       }
@@ -152,6 +163,12 @@
     /* ---------- Affichage de la saisie ---------- */
 
     function majAffichage(q) {
+      if (q.type === "potence") {
+        potenceCases.forEach(function (b) {
+          b.classList.toggle("actif", b === potenceActif);
+        });
+        return;
+      }
       if (q.champs) {
         q.champs.forEach(function (c) {
           var cible = el.querySelector('[data-valeur="' + c + '"]');
@@ -179,6 +196,21 @@
     function ajouterChiffre(c) {
       var q = questionCourante();
       if (!q || q.termine || q.type === "qcm") return;
+      if (q.type === "potence") {
+        if (c === "," || !potenceCases.length) return;
+        var cible = (potenceActif && potenceCases.indexOf(potenceActif) !== -1)
+          ? potenceActif
+          : (potenceCases.filter(function (b) { return !b.textContent.trim(); })[0] ||
+             potenceCases[potenceCases.length - 1]);
+        cible.textContent = c;
+        cible.classList.remove("juste", "faux");
+        potenceActif = cible;
+        var suivante = potenceCases[potenceCases.indexOf(cible) + 1];
+        if (suivante && !suivante.textContent.trim()) potenceActif = suivante;
+        Q.audio.son("page");
+        majAffichage(q);
+        return;
+      }
       if (q.champs) {
         if (c === ",") return;
         var actuel = saisieChamps[champActif] || "";
@@ -202,6 +234,23 @@
     function effacer() {
       var q = questionCourante();
       if (!q || q.termine || q.type === "qcm") return;
+      if (q.type === "potence") {
+        if (!potenceCases.length) return;
+        var cible = potenceActif || potenceCases[potenceCases.length - 1];
+        if (cible.textContent.trim() !== "") {
+          cible.textContent = "";
+          cible.classList.remove("juste", "faux");
+        } else {
+          var i = potenceCases.indexOf(cible) - 1;
+          if (i >= 0) {
+            potenceActif = potenceCases[i];
+            potenceActif.textContent = "";
+            potenceActif.classList.remove("juste", "faux");
+          }
+        }
+        majAffichage(q);
+        return;
+      }
       if (q.champs) {
         var actuel = saisieChamps[champActif] || "";
         saisieChamps[champActif] = actuel.slice(0, -1);
@@ -214,9 +263,40 @@
       majAffichage(q);
     }
 
+    /* Renvoie le nombre de cases vides et le nombre de cases fausses
+       d'une potence, en colorant chaque case au passage. */
+    function verifierPotence() {
+      var bilan = { vides: 0, faux: 0 };
+      potenceCases.forEach(function (b) {
+        var v = b.textContent.trim();
+        if (v === "") { bilan.vides += 1; return; }
+        var ok = v === String(b.getAttribute("data-attendu"));
+        b.classList.toggle("juste", ok);
+        b.classList.toggle("faux", !ok);
+        if (!ok) bilan.faux += 1;
+      });
+      return bilan;
+    }
+
     function valider() {
       var q = questionCourante();
       if (!q || q.termine) return;
+
+      if (q.type === "potence") {
+        var bilan = verifierPotence();
+        if (bilan.vides) {
+          Q.ui.toast("Remplis toutes les cases de la potence.", "ko");
+          return;
+        }
+        if (bilan.faux) {
+          /* Une case fausse compte comme un essai, même si le quotient
+             est juste : c'est la démarche complète qu'on vérifie. */
+          traiter({ quotient: -1, reste: -1 });
+          return;
+        }
+        traiter({ quotient: q.reponse.quotient, reste: q.reponse.reste });
+        return;
+      }
 
       var valeur;
       if (q.champs) {
@@ -304,7 +384,7 @@
     }
 
     function desactiverTout() {
-      Array.prototype.forEach.call(el.querySelectorAll(".option, .pave__touche, .pose__case, [data-aide], [data-action='valider']"), function (b) {
+      Array.prototype.forEach.call(el.querySelectorAll(".option, .pave__touche, .pose__case, .potence__case, [data-aide], [data-action='valider']"), function (b) {
         b.disabled = true;
       });
       Array.prototype.forEach.call(el.querySelectorAll("[data-champ]"), function (b) {
@@ -322,6 +402,15 @@
       if (q.type === "pose") {
         var zonePose = el.querySelector(".pose");
         if (zonePose) zonePose.outerHTML = Q.exercices.poseHTML(q, { corrige: true });
+        return;
+      }
+      if (q.type === "potence") {
+        var zonePotence = el.querySelector(".potence");
+        if (zonePotence) {
+          zonePotence.outerHTML = Q.exercices.potenceHTML(q, { corrige: true });
+          potenceCases = [];
+          potenceActif = null;
+        }
         return;
       }
       if (q.champs) {
@@ -374,6 +463,24 @@
         });
       });
 
+      /* Potence : chaque case est un chiffre ; on sélectionne la case
+         puis on écrit. La saisie avance toute seule. */
+      potenceCases = Array.prototype.slice.call(el.querySelectorAll("[data-role]"))
+        .sort(function (a, b) {
+          return Number(a.getAttribute("data-ordre")) - Number(b.getAttribute("data-ordre"));
+        });
+      potenceCases.forEach(function (b) {
+        b.addEventListener("click", function () {
+          if (b.disabled) return;
+          potenceActif = b;
+          majAffichage(q);
+        });
+      });
+      if (q.type === "potence" && potenceCases.length) {
+        potenceActif = potenceCases[0];
+        majAffichage(q);
+      }
+
       /* Cahier de brouillon : l'enfant écrit lui-même ses reports.
          Un tap pose un 1 (ou monte la retenue jusqu'à 9). */
       Array.prototype.forEach.call(el.querySelectorAll("[data-marque]"), function (b) {
@@ -409,6 +516,12 @@
             saisie = "";
             saisieChamps = {};
             majAffichage(q);
+            potenceCases.forEach(function (c) {
+              c.textContent = "";
+              c.classList.remove("juste", "faux");
+            });
+            potenceActif = potenceCases[0] || null;
+            if (q.type === "potence") majAffichage(q);
             Array.prototype.forEach.call(el.querySelectorAll("[data-marque]"), function (m) {
               m.setAttribute("data-valeur", "0");
               m.classList.remove("pleine");

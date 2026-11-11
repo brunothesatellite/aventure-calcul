@@ -204,7 +204,7 @@
       } else if (content.competences[g.competence].operation !== g.ile) {
         erreurs.push("Énoncé " + g.id + " : compétence " + g.competence + " hors de l'île " + g.ile);
       }
-      if (g.mode && g.mode !== "tete" && g.mode !== "pose") {
+      if (g.mode && g.mode !== "tete" && g.mode !== "pose" && g.mode !== "potence") {
         erreurs.push("Énoncé " + g.id + " : mode inconnu " + g.mode);
       }
       /* Un gabarit doit être rattaché à une compétence de son niveau. */

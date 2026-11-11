@@ -22,11 +22,11 @@
 Conséquences sur le chiffrage : le lot contenu passe de 12 h à ~20 h, le lot moteur gagne +4 h
 (calcul posé), et l'arrondi au supérieur sort du périmètre v1. Total révisé : **≈ 45 h** (§ 11).
 
-**État au 11/11/2026** : lots **L0 à L5 terminés**. Le jeu est jouable de bout en bout et le
+**État au 11/11/2026** : lots **L0 à L6 terminés**. Le jeu est jouable de bout en bout et le
 contenu est complet : **160 énoncés** (40 par île, 10 par niveau, 3 formulations). La Salle des
-tables et la carte de chaleur des parents sont en place. Une page d'essai (`essai-retenues.html`)
-valide les opérations posées, dont la potence de division avec ses résultats intermédiaires.
-Reste l'intégration de la potence aux quêtes et la recette. Voir `README.md`.
+tables, la carte de chaleur des parents et la **division posée en potence** (niveau 3 de l'île
+Division) sont en place. Une page d'essai (`essai-retenues.html`) permet de tester les quatre
+opérations posées. Reste le polish et la recette. Voir `README.md`.
 
 ---
 
@@ -625,8 +625,9 @@ silencieusement dans un fork.
 | **L3 — Contenu** | **160 gabarits** (40/île, 10/niveau), 4 Gardiens, récit, badges, 20 stratégies | ✅ 4 îles terminables, 0 erreur de lint | 13 h — fait |
 | **L4 — Progression** | SRS compétences, étoiles, or, boutique, carnet, **Salle des tables** | ✅ boucle complète, record et badge de table | 2 h — fait |
 | **L5 — Parents & données** | PIN, récompenses, **carte de chaleur**, erreurs par famille, export/import, corbeille | ✅ parchemin imprimé + sauvegarde restaurée | 2 h — fait |
-| **L6 — Polish** | accessibilité, clavier, responsive 320 px, animations, contrastes | recette accessibilité passée | 2 h |
-| **L7 — Recette** | lint massif, test navigateur, test « vrai enfant », calibrage or | liste de bugs corrigée | 3 h |
+| **L6 — Division posée** | potence interactive dans les quêtes (quotient, produits, différences, chiffres descendus) | ✅ 8 gabarits de niveau 3, test DOM de bout en bout | 1 h — fait |
+| **L7 — Polish** | accessibilité, clavier, responsive 320 px, animations, contrastes | recette accessibilité passée | 2 h |
+| **L8 — Recette** | lint massif, test navigateur, test « vrai enfant », calibrage or | liste de bugs corrigée | 3 h |
 
 **Total ≈ 44 h**, dont **15 h réalisées** (L0-L2) et **≈ 29 h restantes** (contenu, Salle des
 tables, parents, polish). Le jeu est jouable dès maintenant ; le contenu (L3) est le premier
@@ -685,10 +686,8 @@ de test navigateur au vert.
 
 Reste :
 
-1. **L6** — intégrer aux quêtes la potence de division (produits et différences intermédiaires)
-   et la multiplication posée, validées sur `essai-retenues.html`, puis calibrage de l'or après
-   deux semaines de test réel.
-2. **L7** — recette accessibilité et test « vrai enfant ».
+1. **L7** — polish accessibilité, calibrage de l'or après deux semaines de test réel.
+2. **L8** — recette : lint massif, test navigateur, test « vrai enfant ».
 
 Le contenu peut encore grandir : ajouter 10 énoncés à un niveau demande un fichier et zéro
 ligne de moteur.

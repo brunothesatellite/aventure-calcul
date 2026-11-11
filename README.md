@@ -88,8 +88,8 @@ Conséquence pédagogique : la répétition espacée ne porte plus sur des quest
 | Accueil, choix du joueur, profils multiples, corbeille | ✅ |
 | Carte de l'archipel, 4 îles, déblocage à 6 ★/12 | ✅ |
 | Hub d'île, 4 niveaux, Gardien | ✅ |
-| Quête : QCM, pavé, calcul posé, division à 2 champs | ✅ |
-| **Division posée (potence)** : quotient, produits et différences, chiffres descendus | ✅ page d'essai |
+| Quête : QCM, pavé, calcul posé, **division posée en potence** | ✅ |
+| **Division posée (potence)** : quotient, produits et différences, chiffres descendus | ✅ niveau 3 de l'île Division |
 | **Salle des tables** : 9 tables + mixte, record, 5 pièces si 10/10 | ✅ |
 | **Carte de chaleur** : étoiles île × niveau, erreurs par famille, compétences fragiles | ✅ espace parent |
 | Étoiles, or, série, répétition espacée, révision du jour | ✅ |
@@ -135,9 +135,9 @@ node tools/smoke-navigateur.mjs
 
 Lance Edge en mode headless, ouvre `index.html` en `file://`, crée un profil, parcourt tous les
 écrans, joue une quête **en cliquant réellement dans le DOM**, vérifie le feedback et l'aide d'un
-familier, joue les quêtes pavé / division à reste / calcul posé et un Gardien, teste « tout
-débloquer », recharge la page et vérifie que la progression est toujours là. Il échoue à la
-moindre erreur console.
+familier, joue les quêtes pavé / division à reste / calcul posé, remplit une potence de division
+et un Gardien, teste « tout débloquer », recharge la page et vérifie que la progression est
+toujours là. Il échoue à la moindre erreur console.
 
 ```bash
 node tools/capture-ecrans.mjs        # captures dans docs/captures
@@ -191,8 +191,8 @@ tools/                  linter, test navigateur, captures, manifest
 | ✅ **L3** | Les 160 énoncés (40 par île, 10 par niveau, 3 formulations) |
 | ✅ **L4** | Salle des tables (9 tables + mixte, records, badge) |
 | ✅ **L5** | Espace parent enrichi : carte de chaleur, erreurs par famille, compétences fragiles |
-| L6 | Intégrer dans les quêtes la potence de division et la multiplication posée validées sur la page d'essai |
-| L7 | Polish accessibilité, recette, test « vrai enfant » |
+| ✅ **L6** | Division posée en potence dans les quêtes (niveau 3 de l'île Division) |
+| L7 | Calibrage de l'or après test réel, polish accessibilité, recette, test « vrai enfant » |
 
 Détail complet dans [`PLAN.md`](PLAN.md).
 
