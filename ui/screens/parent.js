@@ -144,9 +144,9 @@
   }
 
   /* ---------- Tableau de bord ---------- */
-  function tableauDeBord(el) {    var s = Q.etat.stats;
+  function tableauDeBord(el) {
+    var s = Q.etat.stats;
     var srs = Q.srs.stats();
-    var erreurs = Object.keys(s.erreurs || {}).sort(function (a, b) { return s.erreurs[b] - s.erreurs[a]; }).slice(0, 6);
 
     var recompenses = [0, 1, 2].map(function (i) {
       var r = Q.etat.recompenses[i] || { texte: "", prix: [150, 300, 500][i] };
@@ -184,14 +184,6 @@
         "</div>" +
         '<p class="discret espace-haut-sm">Îles conquises : ' +
           Q.curriculum().ordre.filter(function (id) { return Q.jeu.ileConquise(id); }).length + "/4 · Pointes : " + Q.etat.pointes.length + "/4 · Badges : " + Q.etat.badges.length + "/" + Q.badges.liste.length + "</p>" +
-      "</div>" +
-
-      '<div class="carte espace-haut"><h2>Points à revoir</h2>' +
-        (erreurs.length
-          ? '<table class="tableau"><thead><tr><th>Type d\'erreur</th><th>Occurrences</th></tr></thead><tbody>' +
-            erreurs.map(function (k) { return "<tr><td>" + Q.ui.echapper(Q.feedback.typesErreurs[k] || k) + "</td><td>" + s.erreurs[k] + "</td></tr>"; }).join("") +
-            "</tbody></table>"
-          : '<p class="discret">Rien à signaler pour le moment.</p>') +
       "</div>" +
 
       '<div class="carte espace-haut"><h2>Carte de chaleur</h2>' +
