@@ -245,7 +245,7 @@ async function main() {
         x.type === "potence" || (x.champs && x.champs.length === 2)),
       avecReste.map((x) => x.type).join(","));
     const gabaritsPotence = Q.tousLesEnonces().filter((g) => g.mode === "potence");
-    pas("8 gabarits de division posée", gabaritsPotence.length === 8,
+    pas("13 gabarits de division posée", gabaritsPotence.length === 13,
       gabaritsPotence.length + " gabarits");
 
     /* Le gabarit posé doit produire une question posée (test direct,
@@ -536,6 +536,30 @@ async function main() {
       document.querySelectorAll("#screen-quete .potence__case--corrigee").length > 0,
       qPotence2.termine + " · " +
       document.querySelectorAll("#screen-quete .potence__case--corrigee").length + " cases corrigées");
+
+    /* Niveau 4 : potence exacte, la réponse reste un nombre. */
+    const qExacte = Q.exercices.construire(Q.enonce("div-barques-04"));
+    Q.etat.quest = {
+      ileId: "division", niveauId: "division-4", mode: "niveau", operation: "division",
+      creeLe: Date.now(), questions: [qExacte], index: 0,
+      aides: { eliminer: 0, decomposer: 0, astuce: 0, indice: 0 }, orGagne: 0, fini: false
+    };
+    Q.router.go("quete");
+    Array.prototype.slice.call(document.querySelectorAll("#screen-quete [data-role]"))
+      .sort((a, b) => Number(a.getAttribute("data-ordre")) - Number(b.getAttribute("data-ordre")))
+      .forEach(function (b) {
+        b.click();
+        const touche = document.querySelector('#screen-quete [data-chiffre="' + b.getAttribute("data-attendu") + '"]');
+        if (touche) touche.click();
+      });
+    document.querySelector("#screen-quete [data-action='valider']").click();
+    pas("potence exacte niveau 4",
+      qExacte.type === "potence" && typeof qExacte.reponse === "number" && qExacte.reussi === true,
+      qExacte.type + " · réponse " + qExacte.reponse + " · reussi " + qExacte.reussi);
+
+    const rPartage = jouerMoteur({ ileId: "division", niveauId: "division-4", mode: "niveau" });
+    pas("quête partage (mixte)", rPartage && rPartage.total === 8,
+      rPartage ? rPartage.total + " questions" : "échec");
 
     Q.etat.quest = null;
     Q.router.go("map");

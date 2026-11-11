@@ -118,6 +118,7 @@
     /* Devine la famille d'erreur d'une réponse saisie. Sert au pavé
        numérique ; en QCM on connaît déjà la famille du leurre. */
     classifier: function (instance, saisie) {
+      if (instance.type === "potence") return "reste";
       if (instance.reponse && typeof instance.reponse === "object") return "reste";
 
       var attendu = typeof instance.reponse === "number" ? instance.reponse : null;

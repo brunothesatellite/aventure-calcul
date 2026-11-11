@@ -294,7 +294,8 @@
           traiter({ quotient: -1, reste: -1 });
           return;
         }
-        traiter({ quotient: q.reponse.quotient, reste: q.reponse.reste });
+        traiter(typeof q.reponse === "number" ? q.reponse
+          : { quotient: q.reponse.quotient, reste: q.reponse.reste });
         return;
       }
 

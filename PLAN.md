@@ -24,9 +24,10 @@ Conséquences sur le chiffrage : le lot contenu passe de 12 h à ~20 h, le lot m
 
 **État au 11/11/2026** : lots **L0 à L6 terminés**. Le jeu est jouable de bout en bout et le
 contenu est complet : **160 énoncés** (40 par île, 10 par niveau, 3 formulations). La Salle des
-tables, la carte de chaleur des parents et la **division posée en potence** (niveau 3 de l'île
-Division) sont en place. Une page d'essai (`essai-retenues.html`) permet de tester les quatre
-opérations posées. Reste le polish et la recette. Voir `README.md`.
+tables, la carte de chaleur des parents et la **division posée en potence** (niveau 3 avec reste,
+niveau 4 en divisions exactes à 3 chiffres) sont en place. Une page d'essai
+(`essai-retenues.html`) permet de tester les quatre opérations posées. Reste le polish et la
+recette. Voir `README.md`.
 
 ---
 
@@ -625,7 +626,7 @@ silencieusement dans un fork.
 | **L3 — Contenu** | **160 gabarits** (40/île, 10/niveau), 4 Gardiens, récit, badges, 20 stratégies | ✅ 4 îles terminables, 0 erreur de lint | 13 h — fait |
 | **L4 — Progression** | SRS compétences, étoiles, or, boutique, carnet, **Salle des tables** | ✅ boucle complète, record et badge de table | 2 h — fait |
 | **L5 — Parents & données** | PIN, récompenses, **carte de chaleur**, erreurs par famille, export/import, corbeille | ✅ parchemin imprimé + sauvegarde restaurée | 2 h — fait |
-| **L6 — Division posée** | potence interactive dans les quêtes (quotient, produits, différences, chiffres descendus) | ✅ 8 gabarits de niveau 3, test DOM de bout en bout | 1 h — fait |
+| **L6 — Division posée** | potence interactive dans les quêtes : niveau 3 avec reste, niveau 4 exact (3 chiffres) en alternance avec le partage mental | ✅ 13 gabarits, test DOM de bout en bout | 1 h — fait |
 | **L7 — Polish** | accessibilité, clavier, responsive 320 px, animations, contrastes | recette accessibilité passée | 2 h |
 | **L8 — Recette** | lint massif, test navigateur, test « vrai enfant », calibrage or | liste de bugs corrigée | 3 h |
 

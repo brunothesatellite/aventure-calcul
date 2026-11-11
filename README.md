@@ -89,7 +89,7 @@ Conséquence pédagogique : la répétition espacée ne porte plus sur des quest
 | Carte de l'archipel, 4 îles, déblocage à 6 ★/12 | ✅ |
 | Hub d'île, 4 niveaux, Gardien | ✅ |
 | Quête : QCM, pavé, calcul posé, **division posée en potence** | ✅ |
-| **Division posée (potence)** : quotient, produits et différences, chiffres descendus | ✅ niveau 3 de l'île Division |
+| **Division posée (potence)** : quotient, produits et différences, chiffres descendus | ✅ niveaux 3 et 4 de l'île Division |
 | **Salle des tables** : 9 tables + mixte, record, 5 pièces si 10/10 | ✅ |
 | **Carte de chaleur** : étoiles île × niveau, erreurs par famille, compétences fragiles | ✅ espace parent |
 | Étoiles, or, série, répétition espacée, révision du jour | ✅ |
@@ -191,7 +191,7 @@ tools/                  linter, test navigateur, captures, manifest
 | ✅ **L3** | Les 160 énoncés (40 par île, 10 par niveau, 3 formulations) |
 | ✅ **L4** | Salle des tables (9 tables + mixte, records, badge) |
 | ✅ **L5** | Espace parent enrichi : carte de chaleur, erreurs par famille, compétences fragiles |
-| ✅ **L6** | Division posée en potence dans les quêtes (niveau 3 de l'île Division) |
+| ✅ **L6** | Division posée en potence dans les quêtes (niveau 3 : avec reste ; niveau 4 : divisions exactes à 3 chiffres, en alternance avec le partage mental) |
 | L7 | Calibrage de l'or après test réel, polish accessibilité, recette, test « vrai enfant » |
 
 Détail complet dans [`PLAN.md`](PLAN.md).

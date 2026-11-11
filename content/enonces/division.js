@@ -82,12 +82,13 @@
       niveau: 4,
       competence: "div.partage",
       difficulte: 3,
+      mode: "potence",
       nombres: {
-        q: { min: 3, max: 9 },
-        b: { min: 2, max: 6 },
+        q: { min: 100, max: 199 },
+        b: { min: 2, max: 9 },
         a: { calc: "q * b" }
       },
-      contraintes: ["a <= 200", "q >= 3", "q != b"],
+      contraintes: ["a >= 200", "a <= 999", "q >= 100", "q != b"],
       enonces: [
         "{a} pirates montent dans {b} barques identiques. Combien de pirates y a-t-il dans chaque barque ?",
         "On répartit {a} pirates dans {b} barques. Combien de pirates par barque ?",
@@ -747,12 +748,13 @@
       niveau: 4,
       competence: "div.partage",
       difficulte: 3,
+      mode: "potence",
       nombres: {
-        q: { min: 3, max: 9 },
-        b: { min: 2, max: 6 },
+        q: { min: 100, max: 199 },
+        b: { min: 2, max: 9 },
         a: { calc: "q * b" }
       },
-      contraintes: ["a <= 200", "q >= 3", "q != b"],
+      contraintes: ["a >= 200", "a <= 999", "q >= 100", "q != b"],
       enonces: [
         "{a} boulets sont répartis dans {b} caisses identiques. Combien par caisse ?",
         "On partage {a} boulets en {b} caisses égales. Combien de boulets par caisse ?",
@@ -770,12 +772,13 @@
       niveau: 4,
       competence: "div.partage",
       difficulte: 3,
+      mode: "potence",
       nombres: {
-        q: { min: 3, max: 9 },
-        b: { min: 2, max: 6 },
+        q: { min: 100, max: 199 },
+        b: { min: 2, max: 9 },
         a: { calc: "q * b" }
       },
-      contraintes: ["a <= 200", "q >= 3", "q != b"],
+      contraintes: ["a >= 200", "a <= 999", "q >= 100", "q != b"],
       enonces: [
         "{a} biscuits sont répartis dans {b} boîtes identiques. Combien par boîte ?",
         "On partage {a} biscuits en {b} boîtes égales. Combien de biscuits par boîte ?",
@@ -793,12 +796,13 @@
       niveau: 4,
       competence: "div.partage",
       difficulte: 3,
+      mode: "potence",
       nombres: {
-        q: { min: 3, max: 9 },
-        b: { min: 2, max: 6 },
+        q: { min: 100, max: 199 },
+        b: { min: 2, max: 9 },
         a: { calc: "q * b" }
       },
-      contraintes: ["a <= 200", "q >= 3", "q != b"],
+      contraintes: ["a >= 200", "a <= 999", "q >= 100", "q != b"],
       enonces: [
         "{a} cartes sont réparties en {b} paquets identiques. Combien par paquet ?",
         "On partage {a} cartes en {b} paquets égaux. Combien de cartes par paquet ?",
@@ -816,12 +820,13 @@
       niveau: 4,
       competence: "div.partage",
       difficulte: 3,
+      mode: "potence",
       nombres: {
-        q: { min: 3, max: 9 },
-        b: { min: 2, max: 6 },
+        q: { min: 100, max: 199 },
+        b: { min: 2, max: 9 },
         a: { calc: "q * b" }
       },
-      contraintes: ["a <= 200", "q >= 3", "q != b"],
+      contraintes: ["a >= 200", "a <= 999", "q >= 100", "q != b"],
       enonces: [
         "{a} poissons sont répartis dans {b} filets identiques. Combien par filet ?",
         "On partage {a} poissons en {b} filets égaux. Combien de poissons par filet ?",
