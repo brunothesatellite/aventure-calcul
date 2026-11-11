@@ -514,6 +514,29 @@ async function main() {
     pas("potence : réussie après correction", qPotence.reussi === true && !!qPotence.premierCoup === false,
       "reussi " + qPotence.reussi);
 
+    /* Deuxième potence : deux échecs révèlent le calcul corrigé. */
+    const qPotence2 = Q.exercices.construire(Q.enonce("div-reste-26"));
+    Q.etat.quest = {
+      ileId: "division", niveauId: "division-3", mode: "niveau", operation: "division",
+      creeLe: Date.now(), questions: [qPotence2], index: 0,
+      aides: { eliminer: 0, decomposer: 0, astuce: 0, indice: 0 }, orGagne: 0, fini: false
+    };
+    Q.router.go("quete");
+    Array.prototype.slice.call(document.querySelectorAll("#screen-quete [data-role]"))
+      .forEach(function (b) {
+        b.click();
+        const d = String((Number(b.getAttribute("data-attendu")) + 1) % 10);
+        const touche = document.querySelector('#screen-quete [data-chiffre="' + d + '"]');
+        if (touche) touche.click();
+      });
+    document.querySelector("#screen-quete [data-action='valider']").click();
+    document.querySelector("#screen-quete [data-action='valider']").click();
+    pas("potence : correction révélée",
+      qPotence2.termine === true &&
+      document.querySelectorAll("#screen-quete .potence__case--corrigee").length > 0,
+      qPotence2.termine + " · " +
+      document.querySelectorAll("#screen-quete .potence__case--corrigee").length + " cases corrigées");
+
     Q.etat.quest = null;
     Q.router.go("map");
 
