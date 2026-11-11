@@ -114,7 +114,7 @@
       return '<div class="pave" role="group" aria-label="Clavier numérique">' + touches +
         (virgule
           ? '<button class="pave__touche" data-chiffre="," aria-label="Virgule">,</button>'
-          : '<button class="pave__touche pave__touche--vide" tabindex="-1" aria-hidden="true"></button>') +
+          : '<button class="pave__touche pave__touche--outil" data-action="effacer-tout" aria-label="Tout effacer">C</button>') +
         '<button class="pave__touche" data-chiffre="0">0</button>' +
         '<button class="pave__touche pave__touche--outil" data-action="effacer" aria-label="Effacer le dernier chiffre">⌫</button>' +
         "</div>" +
@@ -164,7 +164,10 @@
       }
       if (q.type === "pose") {
         var pose = el.querySelector("#pose-resultat");
-        if (pose) pose.textContent = saisie || "?";
+        if (pose) {
+          pose.textContent = saisie || "?";
+          pose.classList.toggle("pose__num--vide", !saisie);
+        }
         return;
       }
       var ecran = el.querySelector("#ecran");
@@ -181,6 +184,12 @@
         var actuel = saisieChamps[champActif] || "";
         if (actuel.length >= 3) return;
         saisieChamps[champActif] = actuel + c;
+      } else if (q.type === "pose") {
+        /* L'enfant calcule de droite à gauche : chaque chiffre tapé se
+           pose à gauche du précédent, comme dans les colonnes. */
+        var maxi = Math.max(String(q.nombres.a).length, String(q.nombres.b).length) + 1;
+        if (saisie.length >= maxi) return;
+        saisie = c + saisie;
       } else {
         if (c === "," && saisie.indexOf(",") !== -1) return;
         if (c !== "," && saisie.replace(",", "").length >= 7) return;
@@ -196,6 +205,9 @@
       if (q.champs) {
         var actuel = saisieChamps[champActif] || "";
         saisieChamps[champActif] = actuel.slice(0, -1);
+      } else if (q.type === "pose") {
+        /* On retire le dernier chiffre tapé, celui de gauche. */
+        saisie = saisie.slice(1);
       } else {
         saisie = saisie.slice(0, -1);
       }
@@ -292,7 +304,7 @@
     }
 
     function desactiverTout() {
-      Array.prototype.forEach.call(el.querySelectorAll(".option, .pave__touche, [data-aide], [data-action='valider']"), function (b) {
+      Array.prototype.forEach.call(el.querySelectorAll(".option, .pave__touche, .pose__case, [data-aide], [data-action='valider']"), function (b) {
         b.disabled = true;
       });
       Array.prototype.forEach.call(el.querySelectorAll("[data-champ]"), function (b) {
@@ -362,6 +374,21 @@
         });
       });
 
+      /* Cahier de brouillon : l'enfant écrit lui-même ses reports.
+         En haut la retenue (ou le +10), en bas le +1 de compensation. */
+      Array.prototype.forEach.call(el.querySelectorAll("[data-marque]"), function (b) {
+        b.addEventListener("click", function () {
+          var question = questionCourante();
+          if (!question || question.termine) return;
+          var chiffre = b.querySelector(".pose__chiffre");
+          var symbole = b.getAttribute("data-symbole") || "1";
+          var pleine = b.classList.toggle("pleine");
+          b.setAttribute("aria-pressed", pleine ? "true" : "false");
+          if (chiffre) chiffre.textContent = pleine ? symbole : "";
+          Q.audio.son("page");
+        });
+      });
+
       Array.prototype.forEach.call(el.querySelectorAll("[data-aide]"), function (b) {
         b.addEventListener("click", function () {
           if (b.disabled) return;
@@ -373,6 +400,7 @@
         b.addEventListener("click", function () {
           var a = b.getAttribute("data-action");
           if (a === "effacer") effacer();
+          if (a === "effacer-tout") { saisie = ""; saisieChamps = {}; majAffichage(q); }
           if (a === "valider") valider();
           if (a === "ecouter") Q.audio.parler(q.texteOral || q.texte);
           if (a === "quitter") {

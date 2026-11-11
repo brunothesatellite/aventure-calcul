@@ -37,8 +37,13 @@ reviennent en rappel. Une quête de niveau 1 affiche ainsi 8 formulations distin
 |---|---|
 | 1 et 2 | **QCM 3 choix**, avec des leurres fabriqués à partir d'erreurs réelles (retenue oubliée, table voisine, chiffres inversés…) |
 | 3 et 4 | **Pavé numérique** : l'enfant écrit le résultat |
-| gabarits « posé » | **Calcul en colonnes** : l'opération est présentée alignée, le résultat s'écrit sous la barre |
+| gabarits « posé » | **Calcul en colonnes** : des bulles au-dessus des chiffres permettent d'écrire les reports, et le résultat se saisit **de droite à gauche**, comme on calcule |
 | division euclidienne | **Deux cases** : quotient et reste |
+
+Sur un calcul posé, l'enfant peut écrire ses reports comme sur un cahier : une bulle au-dessus
+du chiffre concerné, en addition comme en soustraction. En soustraction, la méthode est celle de
+l'école (par compensation) : un **1** au-dessus du chiffre du haut (+10) et un **+1** au-dessus
+du chiffre du bas (+1).
 
 Les principes anti-frustration :
 

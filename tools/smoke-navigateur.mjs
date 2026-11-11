@@ -254,6 +254,31 @@ async function main() {
     }
     pas("calcul posé dans une quête", poseDansQuete);
 
+    /* Le cahier de retenues : cases présentes, correction pré-remplie,
+       et pas de cases inutiles en multiplication. */
+    const exemplePose = { nombres: { a: 147, b: 238 }, operation: "+", reponse: 385 };
+    const htmlPose = Q.exercices.poseHTML(exemplePose);
+    const nbCases = (htmlPose.match(/data-marque=/g) || []).length;
+    pas("cases de retenues", nbCases === 4, nbCases + " cases");
+    pas("retenue attendue en correction",
+      /pose__case[^"]*pleine/.test(Q.exercices.poseHTML(exemplePose, { corrige: true })));
+    const exempleMul = { nombres: { a: 24, b: 3 }, operation: "×", reponse: 72 };
+    pas("pas de retenues en multiplication", !/data-marque=/.test(Q.exercices.poseHTML(exempleMul)));
+
+    /* Soustraction posée : méthode par compensation. */
+    const exempleSub = { nombres: { a: 452, b: 187 }, operation: "−", reponse: 265 };
+    pas("cases en soustraction", /data-marque=/.test(Q.exercices.poseHTML(exempleSub)));
+    const marquesSub = Q.exercices.marquesPose(exempleSub);
+    pas("emprunts détectés", Array.isArray(marquesSub) && marquesSub.some((m) => m === 1),
+      JSON.stringify(marquesSub));
+    const reportsSub = Q.exercices.reportsPose(exempleSub);
+    pas("compensation : +10 en haut, +1 en bas",
+      reportsSub.haut[0] === true && reportsSub.bas[1] === true &&
+      reportsSub.haut[1] === true && reportsSub.bas[2] === true,
+      JSON.stringify(reportsSub));
+    pas("emprunt attendu en correction",
+      /pose__case[^"]*pleine/.test(Q.exercices.poseHTML(exempleSub, { corrige: true })));
+
     /* Variété : une quête ne doit pas répéter huit fois la même histoire. */
     const variete = Q.session.construire({ ileId: "addition", niveauId: "addition-1", mode: "niveau" });
     const formulations = new Set(variete.questions.map((q) => q.gabaritId + "|" + q.variante));
@@ -359,6 +384,36 @@ async function main() {
     const rPose = jouerMoteur({ ileId: "multiplication", niveauId: "multiplication-4", mode: "niveau" });
     pas("quête avec calcul posé", rPose && rPose.total === 8,
       rPose ? rPose.total + " questions" : "échec");
+
+    /* Cases de retenues réellement cliquables dans l'écran de quête. */
+    const qPose = Q.exercices.construire(Q.enonce("add-pose-05"));
+    Q.etat.quest = {
+      ileId: "addition", niveauId: "addition-3", mode: "niveau", operation: "addition",
+      creeLe: Date.now(), questions: [qPose], index: 0,
+      aides: { eliminer: 0, decomposer: 0, astuce: 0, indice: 0 }, orGagne: 0, fini: false
+    };
+    Q.router.go("quete");
+    const caseRetenue = document.querySelector("#screen-quete [data-marque]");
+    pas("case de retenue à l'écran", !!caseRetenue);
+    if (caseRetenue) {
+      caseRetenue.click();
+      pas("case de retenue cochée",
+        caseRetenue.classList.contains("pleine") && caseRetenue.textContent.trim() === "1");
+      caseRetenue.click();
+      pas("case de retenue effacée", !caseRetenue.classList.contains("pleine"));
+    }
+
+    /* Saisie de droite à gauche : 905 se tape 5, puis 0, puis 9. */
+    const attenduPose = String(qPose.reponse);
+    attenduPose.split("").reverse().forEach(function (c) {
+      const touche = document.querySelector('#screen-quete [data-chiffre="' + c + '"]');
+      if (touche) touche.click();
+    });
+    const affiche = document.getElementById("pose-resultat");
+    pas("saisie de droite à gauche", !!affiche && affiche.textContent === attenduPose,
+      affiche ? affiche.textContent + " (attendu " + attenduPose + ")" : "absent");
+    Q.etat.quest = null;
+    Q.router.go("map");
 
     /* ---- Gardien : pointe et absence de niveau fantôme ---- */
     const rGardien = jouerMoteur({ ileId: "addition", niveauId: null, mode: "gardien" });

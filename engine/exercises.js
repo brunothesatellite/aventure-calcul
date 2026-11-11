@@ -150,17 +150,57 @@
     return sortie;
   }
 
-  /* Ligne de retenues (ou d'emprunts) alignée à droite. */
-  function ligneMarques(marques, largeur) {
-    var cases = [];
-    for (var i = 0; i < largeur; i++) cases.push(" ");
-    /* marques[i] = retenue produite par la colonne i → au-dessus de i+1 */
-    marques.forEach(function (m, i) {
-      if (!m) return;
-      var pos = largeur - 2 - i;
-      if (pos >= 0) cases[pos] = "1";
-    });
-    return cases.join("");
+  /* ---------- Reports d'une opération posée ----------
+
+     Addition : la retenue produite par une colonne s'écrit au-dessus
+     de la colonne suivante ("1").
+
+     Soustraction (méthode par compensation, celle de l'école) :
+     pour 43 − 26, on ajoute 10 au 3 (→ 13) et on compense en ajoutant
+     1 au 2 du bas (→ 3). Deux reports par emprunt :
+       - "haut" : 1 au-dessus du chiffre du haut (+10)
+       - "bas"  : +1 au-dessus du chiffre du bas (+1)
+
+     reports = { haut: [bool par colonne], bas: [bool par colonne] } */
+  function reportsPose(q) {
+    var a = q.nombres.a;
+    var b = q.nombres.b;
+    var largeur = Math.max(String(a).length, String(b).length) + 1;
+    var haut = [];
+    var bas = [];
+    for (var i = 0; i < largeur; i++) { haut.push(false); bas.push(false); }
+
+    if (q.operation === "+") {
+      var m = retenuesAddition(a, b);
+      for (var i2 = 0; i2 < m.length; i2++) {
+        if (m[i2] && i2 + 1 < largeur) haut[i2 + 1] = true;
+      }
+    } else if (q.operation === "−") {
+      var e = empruntsSoustraction(a, b);
+      for (var i3 = 0; i3 < e.length; i3++) {
+        if (!e[i3]) continue;
+        haut[i3] = true;
+        if (i3 + 1 < largeur) bas[i3 + 1] = true;
+      }
+    }
+    return { haut: haut, bas: bas, largeur: largeur };
+  }
+
+  /* Une ligne de cases de report, alignée sur les colonnes. */
+  function ligneReports(famille, symbole, pleines, largeur, corrige) {
+    var html = '<div class="pose__ligne pose__ligne--reports" aria-label="Reports">' +
+      '<span class="pose__op"></span><span class="pose__num">';
+    for (var col = largeur - 1; col >= 0; col--) {
+      var pleine = !!(pleines && pleines[col]);
+      html += '<button type="button" class="pose__case pose__case--' + famille + (pleine ? " pleine" : "") + '"' +
+        ' data-marque="' + famille + ":" + col + '" data-symbole="' + Q.ui.echapper(symbole) + '"' +
+        ' aria-pressed="' + (pleine ? "true" : "false") + '"' +
+        ' aria-label="Report au-dessus de la colonne ' + col + '"' +
+        (corrige ? " disabled" : "") + ">" +
+        '<span class="pose__bulle"><span class="pose__chiffre">' +
+        (pleine ? Q.ui.echapper(symbole) : "") + "</span></span></button>";
+    }
+    return html + "</span></div>";
   }
 
   function poseHTML(q, options) {
@@ -170,12 +210,7 @@
     if (typeof a !== "number" || typeof b !== "number") return "";
     var largeur = Math.max(String(a).length, String(b).length) + 1;
     var signe = q.operation || "×";
-    var marques = "";
-
-    if (options.corrige) {
-      if (signe === "+") marques = ligneMarques(retenuesAddition(a, b), largeur);
-      if (signe === "−") marques = ligneMarques(empruntsSoustraction(a, b), largeur);
-    }
+    var reports = (signe === "+" || signe === "−") ? reportsPose(q) : null;
 
     function ligne(valeur, classe) {
       var texte = String(valeur);
@@ -186,12 +221,19 @@
     }
 
     var html = '<div class="pose" aria-label="' + Q.ui.echapper(signe + " " + a + " " + b) + '">';
-    if (marques) {
-      html += '<div class="pose__ligne pose__ligne--marques"><span class="pose__op"></span>' +
-        '<span class="pose__num">' + Q.ui.echapper(marques) + "</span></div>";
+    if (signe === "+") {
+      html += ligneReports("haut", "1", reports.haut, largeur, options.corrige);
+      html += ligne(a, "pose__ligne--a");
+      html += ligne(b);
+    } else if (signe === "−") {
+      html += ligneReports("haut", "1", reports.haut, largeur, options.corrige);
+      html += ligne(a, "pose__ligne--a");
+      html += ligneReports("bas", "+1", reports.bas, largeur, options.corrige);
+      html += ligne(b);
+    } else {
+      html += ligne(a, "pose__ligne--a");
+      html += ligne(b);
     }
-    html += ligne(a, "pose__ligne--a");
-    html += ligne(b);
     html += '<div class="pose__regle"></div>';
     html += options.corrige
       ? ligne(Q.generateur.formatNombre(q.reponse), "pose__ligne--res")
@@ -231,6 +273,20 @@
     normaliser: normaliser,
     decomposition: decomposition,
     poseHTML: poseHTML,
+
+    /* Reports attendus, colonne par colonne : retenues en addition,
+       emprunts en soustraction (méthode par compensation). */
+    reportsPose: reportsPose,
+
+    marquesPose: function (q) {
+      if (!q || !q.nombres) return [];
+      var a = q.nombres.a;
+      var b = q.nombres.b;
+      if (typeof a !== "number" || typeof b !== "number") return [];
+      if (q.operation === "+") return retenuesAddition(a, b);
+      if (q.operation === "−") return empruntsSoustraction(a, b);
+      return [];
+    },
 
     /* Compare une réponse saisie à la bonne réponse. */
     verifier: function (q, saisie) {

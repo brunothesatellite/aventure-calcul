@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="fr" data-taille="normal" data-animations="oui">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Essai — retenues et emprunts</title>
+  <meta name="description" content="Page d'essai : opérations posées avec des cases pour écrire les retenues et les emprunts.">
+  <meta name="theme-color" content="#fdf6e3">
+  <link rel="icon" href="assets/img/emoji/boussole.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/css/tokens.css">
+  <link rel="stylesheet" href="assets/css/base.css">
+  <link rel="stylesheet" href="assets/css/components.css">
+  <style>
+    /* Page d'essai : on grossit tout pour bien juger les cases. */
+    #zone .pose { font-size: 44px; }
+    #zone .pose__case { height: 1.35em; }
+    .essai-mode { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+    .essai-note { font-size: var(--taille-petit); }
+    #retour { min-height: 8px; }
+  </style>
+</head>
+<body>
+
+  <main class="app">
+    <div class="accueil">
+      <div class="accueil__logo">Essai — retenues et emprunts</div>
+      <p class="accueil__sous-titre">
+        Une opération posée avec des cases pour écrire les reports, comme sur un cahier.
+      </p>
+
+      <div class="carte">
+        <div class="essai-mode">
+          <button class="btn btn--primaire btn--petit" data-op="addition">Addition</button>
+          <button class="btn btn--secondaire btn--petit" data-op="soustraction">Soustraction</button>
+        </div>
+        <div class="essai-mode">
+          <button class="btn btn--secondaire btn--petit" data-chiffres="deux">2 chiffres</button>
+          <button class="btn btn--primaire btn--petit" data-chiffres="trois">3 chiffres</button>
+        </div>
+
+        <p class="discret essai-note" style="margin:6px 0">
+          <span id="aide">Tape dans une petite case pour écrire ta retenue.</span>
+          Retape dessus pour l'effacer. Ces cases sont un brouillon : elles ne comptent pas dans le score.
+        </p>
+
+        <div class="pose-zone">
+          <div id="zone"></div>
+        </div>
+
+        <div class="pave espace-haut-sm" id="pave" role="group" aria-label="Clavier numérique">
+          <button class="pave__touche" data-chiffre="1">1</button>
+          <button class="pave__touche" data-chiffre="2">2</button>
+          <button class="pave__touche" data-chiffre="3">3</button>
+          <button class="pave__touche" data-chiffre="4">4</button>
+          <button class="pave__touche" data-chiffre="5">5</button>
+          <button class="pave__touche" data-chiffre="6">6</button>
+          <button class="pave__touche" data-chiffre="7">7</button>
+          <button class="pave__touche" data-chiffre="8">8</button>
+          <button class="pave__touche" data-chiffre="9">9</button>
+          <button class="pave__touche pave__touche--outil" data-action="effacer-tout" aria-label="Tout effacer">C</button>
+          <button class="pave__touche" data-chiffre="0">0</button>
+          <button class="pave__touche pave__touche--outil" data-action="effacer" aria-label="Effacer">⌫</button>
+        </div>
+
+        <div class="rangee espace-haut" style="flex-wrap:wrap;gap:8px;justify-content:center">
+          <button class="btn btn--primaire" data-action="valider">Vérifier</button>
+          <button class="btn btn--secondaire" data-action="nouvelle">Nouvelle opération</button>
+          <button class="btn btn--mer" data-action="reveler"><span id="libelle-reveler">Voir les retenues</span></button>
+          <button class="btn btn--fantome" data-action="solution">Voir la réponse</button>
+        </div>
+
+        <div class="zone-feedback espace-haut-sm" id="retour"></div>
+      </div>
+
+      <p class="discret center" style="margin-top:14px">
+        Page de test — dites-moi si les cases sont assez grandes et si le geste est naturel.
+      </p>
+    </div>
+  </main>
+
+  <script>window.Quete = window.Quete || {};</script>
+  <script src="engine/generateur.js"></script>
+  <script src="ui/components.js"></script>
+  <script src="engine/exercises.js"></script>
+  <script>
+    (function () {
+      "use strict";
+      var Q = window.Quete;
+
+      var MODES = {
+        addition: {
+          deux: {
+            nombres: { a: { min: 24, max: 58 }, b: { min: 17, max: 39 } },
+            contraintes: ["a + b <= 100", "retenues(a, b) == 1"]
+          },
+          trois: {
+            nombres: { a: { min: 125, max: 899 }, b: { min: 125, max: 899 } },
+            contraintes: ["a + b <= 1500", "retenues(a, b) >= 1", "retenues(a, b) <= 2",
+              "a % 10 != 0", "b % 10 != 0"]
+          }
+        },
+        soustraction: {
+          deux: {
+            nombres: { a: { min: 32, max: 89 }, b: { min: 12, max: 28 } },
+            contraintes: ["a > b", "a - b >= 10", "emprunts(a, b) == 1", "a != 2 * b"]
+          },
+          trois: {
+            nombres: { a: { min: 320, max: 890 }, b: { min: 120, max: "a - 1" } },
+            contraintes: ["a - b >= 50", "emprunts(a, b) >= 1", "emprunts(a, b) <= 2",
+              "b % 10 != 0", "a != 2 * b"]
+          }
+        }
+      };
+
+      var op = "addition";
+      var taille = "trois";
+      var question = null;
+      var saisie = "";
+      var essais = 0;
+
+      var zone = document.getElementById("zone");
+      var pave = document.getElementById("pave");
+      var retour = document.getElementById("retour");
+      var aide = document.getElementById("aide");
+      var libelleReveler = document.getElementById("libelle-reveler");
+
+      function gabarit() {
+        var m = MODES[op][taille];
+        var plus = op === "addition";
+        return {
+          id: "essai-retenue",
+          ile: op,
+          niveau: 3,
+          competence: plus ? "add.centaines" : "sub.centaines",
+          mode: "pose",
+          nombres: m.nombres,
+          contraintes: m.contraintes,
+          enonce: plus ? "{a} + {b}" : "{a} − {b}",
+          operation: plus ? "+" : "−",
+          reponse: plus ? "a + b" : "a - b"
+        };
+      }
+
+      function majLibelles() {
+        var plus = op === "addition";
+        aide.textContent = plus
+          ? "Tape dans une petite case pour écrire ta retenue."
+          : "Pour un emprunt : un 1 au-dessus du chiffre du haut, un +1 au-dessus de celui du bas.";
+        libelleReveler.textContent = plus ? "Voir les retenues" : "Voir les emprunts";
+      }
+
+      function dire(titre, texte, type) {
+        retour.className = "zone-feedback espace-haut-sm";
+        retour.innerHTML = '<div class="feedback feedback--' + (type || "ok") + '" role="status">' +
+          '<p class="feedback__titre">' + Q.ui.echapper(titre) + "</p>" +
+          (texte ? "<p>" + Q.ui.echapper(texte) + "</p>" : "") +
+          "</div>";
+      }
+
+      function majAffichage() {
+        var cible = document.getElementById("pose-resultat");
+        if (cible) {
+          cible.textContent = saisie || "?";
+          cible.classList.toggle("pose__num--vide", !saisie);
+        }
+      }
+
+      function lierCases() {
+        Array.prototype.forEach.call(zone.querySelectorAll("[data-marque]"), function (b) {
+          b.addEventListener("click", function () {
+            var chiffre = b.querySelector(".pose__chiffre");
+            var symbole = b.getAttribute("data-symbole") || "1";
+            var pleine = b.classList.toggle("pleine");
+            b.setAttribute("aria-pressed", pleine ? "true" : "false");
+            if (chiffre) chiffre.textContent = pleine ? symbole : "";
+          });
+        });
+      }
+
+      function nouvelle() {
+        majLibelles();
+        question = Q.generateur.tirer(gabarit());
+        saisie = "";
+        essais = 0;
+        retour.className = "zone-feedback espace-haut-sm";
+        retour.innerHTML = "";
+        zone.innerHTML = Q.exercices.poseHTML(question);
+        zone.setAttribute("data-a", question.nombres.a);
+        zone.setAttribute("data-b", question.nombres.b);
+        majAffichage();
+        lierCases();
+      }
+
+      function ajouter(c) {
+        if (!question) return;
+        /* De droite à gauche : le chiffre tapé se pose à gauche. */
+        var maxi = Math.max(String(question.nombres.a).length, String(question.nombres.b).length) + 1;
+        if (saisie.length >= maxi) return;
+        saisie = c + saisie;
+        majAffichage();
+      }
+
+      function effacer() {
+        saisie = saisie.slice(1);
+        majAffichage();
+      }
+
+      function valider() {
+        if (!question) return;
+        if (!saisie) { dire("Écris le résultat", "Utilise le clavier pour écrire le nombre.", "ko"); return; }
+        if (Number(saisie) === question.reponse) {
+          dire("Bravo !", essais === 0 ? "Du premier coup." : "C'est la bonne réponse.", "ok");
+        } else {
+          essais += 1;
+          dire("Ce n'est pas encore ça", "Regarde bien : as-tu écrit tes reports ?", "ko");
+        }
+      }
+
+      /* Remplit les cases avec les reports attendus. */
+      function reveler() {
+        if (!question) return;
+        var reports = Q.exercices.reportsPose(question);
+        var posees = 0;
+        Array.prototype.forEach.call(zone.querySelectorAll("[data-marque]"), function (bouton) {
+          var morceaux = String(bouton.getAttribute("data-marque")).split(":");
+          var famille = morceaux[0];
+          var col = Number(morceaux[1]);
+          var symbole = bouton.getAttribute("data-symbole") || "1";
+          var pleine = !!(reports[famille] && reports[famille][col]);
+          if (pleine) posees += 1;
+          bouton.classList.toggle("pleine", pleine);
+          bouton.setAttribute("aria-pressed", pleine ? "true" : "false");
+          var chiffre = bouton.querySelector(".pose__chiffre");
+          if (chiffre) chiffre.textContent = pleine ? symbole : "";
+        });
+        var plus = op === "addition";
+        dire(plus ? "Voici où vont les retenues" : "Voici où vont les emprunts",
+          posees
+            ? (plus ? "À toi de terminer le calcul." : "Un 1 au-dessus du chiffre du haut, un +1 au-dessus de celui du bas.")
+            : "Cette opération n'a besoin d'aucun report.",
+          "ok");
+      }
+
+      function solution() {
+        if (!question) return;
+        var plus = op === "addition";
+        dire("La réponse est " + Q.generateur.formatNombre(question.reponse) + ".",
+          question.nombres.a + (plus ? " + " : " − ") + question.nombres.b, "ok");
+      }
+
+      Array.prototype.forEach.call(pave.querySelectorAll("[data-chiffre]"), function (b) {
+        b.addEventListener("click", function () { ajouter(b.getAttribute("data-chiffre")); });
+      });
+      pave.querySelector('[data-action="effacer"]').addEventListener("click", effacer);
+
+      Array.prototype.forEach.call(document.querySelectorAll("[data-action]"), function (b) {
+        b.addEventListener("click", function () {
+          var a = b.getAttribute("data-action");
+          if (a === "valider") valider();
+          if (a === "nouvelle") nouvelle();
+          if (a === "reveler") reveler();
+          if (a === "solution") solution();
+          if (a === "effacer-tout") { saisie = ""; majAffichage(); }
+        });
+      });
+
+      Array.prototype.forEach.call(document.querySelectorAll("[data-op]"), function (b) {
+        b.addEventListener("click", function () {
+          op = b.getAttribute("data-op");
+          Array.prototype.forEach.call(document.querySelectorAll("[data-op]"), function (x) {
+            x.className = "btn btn--petit " + (x === b ? "btn--primaire" : "btn--secondaire");
+          });
+          nouvelle();
+        });
+      });
+
+      Array.prototype.forEach.call(document.querySelectorAll("[data-chiffres]"), function (b) {
+        b.addEventListener("click", function () {
+          taille = b.getAttribute("data-chiffres");
+          Array.prototype.forEach.call(document.querySelectorAll("[data-chiffres]"), function (x) {
+            x.className = "btn btn--petit " + (x === b ? "btn--primaire" : "btn--secondaire");
+          });
+          nouvelle();
+        });
+      });
+
+      document.addEventListener("keydown", function (e) {
+        if (/^[0-9]$/.test(e.key)) { ajouter(e.key); e.preventDefault(); }
+        else if (e.key === "Backspace") { effacer(); e.preventDefault(); }
+        else if (e.key === "Enter") { valider(); e.preventDefault(); }
+      });
+
+      nouvelle();
+    })();
+  </script>
+</body>
+</html>

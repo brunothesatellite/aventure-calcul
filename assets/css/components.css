@@ -1346,7 +1346,7 @@ details.strategies summary {
 
 .pose {
   font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
-  font-size: 30px;
+  font-size: 34px;
   line-height: 1.25;
   margin: 0 auto;
   color: var(--encre);
@@ -1368,7 +1368,7 @@ details.strategies summary {
   display: inline-block;
   min-width: 5ch;
   text-align: right;
-  letter-spacing: .05em;
+  letter-spacing: 0;
 }
 
 .pose__regle {
@@ -1376,10 +1376,74 @@ details.strategies summary {
   margin: 4px 0;
 }
 
-.pose__ligne--marques {
-  font-size: 14px;
-  color: var(--erreur);
-  min-height: 16px;
+/* Ligne de reports : une bulle par colonne, comme un jeton posé
+   au-dessus du chiffre. Vide = un point discret, posée = une bulle.
+   "haut" = retenue (1) ou +10 ; "bas" = +1 de compensation. */
+.pose__ligne--reports {
+  align-items: flex-end;
+  min-height: 1.3em;
+  margin-bottom: 2px;
+}
+
+.pose__case {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1ch;
+  height: 1.3em;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: #fff;
+  font: inherit;
+  line-height: 1;
+  cursor: pointer;
+  vertical-align: bottom;
+}
+
+.pose__bulle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: .86ch;
+  height: .86ch;
+  border-radius: 50%;
+  line-height: 1;
+}
+
+/* Colonne libre : un point très discret, pas un cadre. */
+.pose__case:not(.pleine) .pose__bulle {
+  width: .42ch;
+  height: .42ch;
+  background: var(--parchemin-3);
+}
+
+.pose__case:hover:not(.pleine) .pose__bulle {
+  background: var(--bois-clair);
+}
+
+/* Report posé : une bulle dorée avec son symbole. */
+.pose__case.pleine .pose__bulle {
+  background: var(--or-fonce);
+  box-shadow: 0 2px 0 rgba(0, 0, 0, .18);
+}
+
+/* Le +1 de compensation est plus large que la colonne : une pilule. */
+.pose__case--bas .pose__bulle {
+  width: 1.6ch;
+  border-radius: 999px;
+}
+
+.pose__case--bas .pose__chiffre { font-size: .42em; }
+
+.pose__case:disabled { cursor: default; }
+
+.pose__chiffre {
+  display: block;
+  font-size: .5em;
+  font-weight: 700;
+  line-height: 1;
 }
 
 .pose__num--vide { color: var(--or-fonce); }
