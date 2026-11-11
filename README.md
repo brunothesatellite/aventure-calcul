@@ -6,6 +6,8 @@ publicité et sans connexion.**
 Traverse les quatre îles, bats leurs Gardiens et rassemble les quatre pointes de la
 Boussole des Opérations : addition, soustraction, multiplication, division.
 
+**En ligne : <https://brunothesatellite.github.io/aventure-calcul/>**
+
 > **État du projet : contenu complet.** Le jeu est jouable de bout en bout : quêtes de
 > 8 questions, QCM, pavé numérique, calcul posé, division avec reste, étoiles, or,
 > répétition espacée, boutique et espace parent. **160 énoncés, 480 formulations.**
